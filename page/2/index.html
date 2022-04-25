@@ -148,6 +148,238 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-单片机按键识别" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/12/30/%E5%8D%95%E7%89%87%E6%9C%BA%E6%8C%89%E9%94%AE%E8%AF%86%E5%88%AB/">单片机按键识别： 按下 弹起 长按</a>
+    </h1>
+  
+
+        
+        <a href="/2021/12/30/%E5%8D%95%E7%89%87%E6%9C%BA%E6%8C%89%E9%94%AE%E8%AF%86%E5%88%AB/" class="archive-article-date">
+  	<time datetime="2021-12-29T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-12-30</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文主要针对单片机IO口读取到的按键信号，进行处理识别。识别按键的<strong>按下</strong>、<strong>弹起</strong>、<strong>长按</strong>三种状态，不讨论硬件层的配置问题。可应用于所有单片机的按键信号处理。</p>
+<hr>
+<h2 id="按键的简单介绍"><a href="#按键的简单介绍" class="headerlink" title="按键的简单介绍"></a>按键的简单介绍</h2><hr>
+<p>按键的硬件主要以接地和接电源的方式。</p>
+<p>下面这张图是接地的，当按键未按下时，key1电压为低电平，当按键按下时，key1电压为高电平。</p>
+<p><img src="https://img-blog.csdnimg.cn/4464b104c94f46d8910736198a805dad.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6Iul5oKy5rWq,size_16,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="接地按键"></p>
+<p>下面这张图是接电源的，当按键未按下时，key2电压为高电平，按下时为低电平。</p>
+<p><img src="https://img-blog.csdnimg.cn/06a6a1f7c69147c7a056b91cbf250f29.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6Iul5oKy5rWq,size_16,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="按键接电源"></p>
+<hr>
+<h2 id="按键信号处理"><a href="#按键信号处理" class="headerlink" title="按键信号处理"></a>按键信号处理</h2><hr>
+<p>为了方便起见，不论按下时高电平还是低电平，我们在硬件层编写读取函数时，将按下的状态标志位1，弹起的状态标志位0。<br>下面以<em>Key1</em>为<em>PA0</em>口和<em>Key2</em>位<em>PB2</em>口为例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">u8_t</span> <span class="title">HW_Read_Key</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">u8_t</span>  nKeyBuff = <span class="number">0</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">if</span> (PA_IDR &amp; <span class="number">0x01</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		nKeyBuff |= <span class="number">0x01</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (PB_IDR &amp; <span class="number">0x04</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		nKeyBuff |= <span class="number">0x02</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">  <span class="keyword">return</span> nKeyBuff;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>我们知道机械按键在按下和弹起时，会因为产生抖动，出现高低电平快速变化，因此我们必须进行<strong>消抖处理</strong>。</p>
+<p>普遍地做法是使用delay函数延迟<em>50ms</em>左右，但是delay这个延迟函数是for循环构成的，程序会堵塞在里面，不能及时的处理其他信息，且极大的减慢了单片机运行速度。</p>
+<p>因此常用地做法是使用时间标志位，利用定时器定时，详细可以查看我的关于stm8s硬件配置的那篇文章。</p>
+<hr>
+<p>本文编写了一个按键读取函数KeyReadInfor()，只需要在while(1)中执行这个函数就可以不断检测按键的信息了。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">u8_t</span> nKeyCrVal = <span class="number">0</span>; <span class="comment">// 按键当前的值</span></span><br><span class="line"><span class="keyword">u8_t</span> nKeyPrVal = <span class="number">0</span>; <span class="comment">// 按键上一次的值</span></span><br><span class="line"><span class="keyword">u8_t</span> nKeyPrDat = <span class="number">0</span>; <span class="comment">// 按键50ms前的值</span></span><br><span class="line"><span class="keyword">u8_t</span> wTimeCnt = <span class="number">0</span>;  <span class="comment">// 时间计时</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">KEYINFOR</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">u8_t</span> m_nKeyDn;</span><br><span class="line">    <span class="keyword">u8_t</span> m_nKeyUp;</span><br><span class="line">    <span class="keyword">u8_t</span> m_nKeykp;</span><br><span class="line">&#125;KEYINFOR;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">KeyReadInfor</span><span class="params">(KEYINFOR stKeyInfor)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">u8_t</span> nMask = <span class="number">0</span>;     <span class="comment">// 检测按键值变化</span></span><br><span class="line">    <span class="keyword">u8_t</span> nKeyDn = <span class="number">0</span>;    <span class="comment">// 检测按键按下</span></span><br><span class="line">    <span class="keyword">u8_t</span> nKeyUp = <span class="number">0</span>;    <span class="comment">// 检测按键弹起</span></span><br><span class="line">    <span class="keyword">u8_t</span> nKeyKp = <span class="number">0</span>;    <span class="comment">// 检测按键长按</span></span><br><span class="line">    <span class="keyword">if</span> (bSysTime10ms) <span class="comment">// bSysTime10ms为时间标志位，每10ms会置为True</span></span><br><span class="line">    &#123;</span><br><span class="line">        bSysTime10ms = eFALSE;</span><br><span class="line">        nKeyCrVal = HW_Read_Key(); <span class="comment">// 读取按键的值</span></span><br><span class="line">        <span class="keyword">if</span> (nKeyCrVal == nKeyPrVal)</span><br><span class="line">        &#123;</span><br><span class="line">            wTimeCnt++;</span><br><span class="line">            <span class="keyword">if</span> (wTimeCnt &gt;= (<span class="number">2</span>&lt;&lt;<span class="number">16</span>)<span class="number">-1</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                wTimeCnt = (<span class="number">2</span>&lt;&lt;<span class="number">16</span>)<span class="number">-1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (wTimeCnt == <span class="number">5</span>) <span class="comment">// 50ms</span></span><br><span class="line">            &#123;</span><br><span class="line">                nMask = nKeyCrVal ^ nKeyPrVal;</span><br><span class="line">                nKeyDn = nKeyCrVal &amp; nMask; </span><br><span class="line">                nKeyUp = nKeyPrVal &amp; nMask;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (wTimeCnt == <span class="number">200</span>) <span class="comment">//2s</span></span><br><span class="line">            &#123;</span><br><span class="line">                nKeyKp = nKeyPrVal;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            wTimeCnt = <span class="number">0</span>;</span><br><span class="line">            nKeyPrVal = nKeyCrVal;</span><br><span class="line">        &#125;</span><br><span class="line">        stKeyInfor.m_nKeyDn = nKeyDn;</span><br><span class="line">        stKeyInfor.m_nKeyUp = nKeyUp;</span><br><span class="line">        stKeyInfor.m_nKeyKp = nKeyKp;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>main函数代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">KEYINFOR s_stKeyInfor = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">/* 按键消息读取 */</span></span><br><span class="line">  KeyReadInfor(s_stKeyInfor);</span><br><span class="line">  <span class="comment">/* 消息检测 */</span></span><br><span class="line">  <span class="keyword">if</span> (s_stKeyInfor.m_nKeyDn || s_stKeyInfor.m_nKeyUp || s_stKeyInfor.m_nKeyKp)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="comment">//消息处理，根据自己需求编写</span></span><br><span class="line">    <span class="keyword">if</span> (s_stKeyInfor.m_nKeyDn)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">switch</span>(s_stKeyInfor.m_nKeyDn)</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x01</span>:</span><br><span class="line">             <span class="keyword">break</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">case</span> <span class="number">0x02</span>:</span><br><span class="line">             <span class="keyword">break</span>;</span><br><span class="line">             </span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">             <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      s_stKeyInfor.m_nKeyDn = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (s_stKeyInfor.m_nKeyUp)</span><br><span class="line">    &#123;</span><br><span class="line">    </span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (s_stKeyInfor.m_nKeyKp)</span><br><span class="line">    &#123;</span><br><span class="line">    </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>需要注意的是，整个程序中，最好只有消息检测是无延迟的，以系统频率进行检测，其他程序均要有时间标志位延迟，否则当整个程序过大时，会导致单片机工作负载过大，从而使整个程序的循环变慢。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">单片机</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/单片机//" class="article-tag-list-link color4">单片机</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2021/12/30/%E5%8D%95%E7%89%87%E6%9C%BA%E6%8C%89%E9%94%AE%E8%AF%86%E5%88%AB/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-stm8lLCD显示" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/12/29/stm8lLCD%E6%98%BE%E7%A4%BA/">stm8l LCD显示</a>
+    </h1>
+  
+
+        
+        <a href="/2021/12/29/stm8lLCD%E6%98%BE%E7%A4%BA/" class="archive-article-date">
+  	<time datetime="2021-12-28T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-12-29</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>如图所示，可以看到LCD配置寄存器包含4个控制寄存器LCD_CRx、频率选择寄存器LCD_FRQ、端口掩码寄存器LCD_PM、LCD显示寄存器LCD_RAM。</p>
+<p><img src="https://img-blog.csdnimg.cn/a6fd4b2902174ba9838c8eec139e3c09.png#pic_center" alt="LCD寄存器"></p>
+<hr>
+<h2 id="LCD初始化配置"><a href="#LCD初始化配置" class="headerlink" title="LCD初始化配置"></a>LCD初始化配置</h2><hr>
+<p>stm8L的LCD显示<br>初始化配置分为以下几个步骤：</p>
+<ol>
+<li>   背光LED灯初始化</li>
+<li>   使能LCD外设时钟</li>
+<li>   LCD参数设置</li>
+<li>   LCD端口设置</li>
+<li>   LCD对比度设置</li>
+</ol>
+<hr>
+<p>注：使用寄存器库将指针-&gt;更改为下划线_即可。u8_t即unsigned char类型。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HW_Init_LcdIO</span><span class="params">(<span class="keyword">void</span>)</span> </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">  <span class="comment">/* configure PB5, Output and push-pull and Low level  */</span></span><br><span class="line">  GPIOB-&gt;DDR |= <span class="number">0x20</span>;</span><br><span class="line">  GPIOB-&gt;CR2 &amp;= ~<span class="number">0x20</span>;</span><br><span class="line">  GPIOB-&gt;ODR &amp;= ~<span class="number">0x20</span>;</span><br><span class="line">  GPIOB-&gt;CR1 |= <span class="number">0x20</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/*Enables the LCD peripheral clock*/</span></span><br><span class="line">  CLK-&gt;PCKENR2 |= <span class="number">0x08</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/*lcd configure */</span>   </span><br><span class="line">  LCD-&gt;FRQ = <span class="number">0x30</span>;      <span class="comment">/* LCD_Prescaler_8,LCD_Divider_16 */</span></span><br><span class="line">  LCD-&gt;CR1 &amp;= ~<span class="number">0x06</span>;    <span class="comment">/* Clear the duty bits */</span></span><br><span class="line">  LCD-&gt;CR4 &amp;= ~<span class="number">0x02</span>;   <span class="comment">/* Clear the DUTY8 bit */</span></span><br><span class="line">  LCD-&gt;CR1 |= <span class="number">0x02</span>;    <span class="comment">/* Configure the Duty cycle 1/2 */</span></span><br><span class="line">  LCD-&gt;CR1 |= <span class="number">0x00</span>;    <span class="comment">/* Configure the Bias cycle 1/3 */</span></span><br><span class="line">  LCD-&gt;CR2 &amp;= ~<span class="number">0x01</span>;    <span class="comment">/* Clear the voltage source bit */</span></span><br><span class="line">  LCD-&gt;CR2 |= <span class="number">0x01</span>;   <span class="comment">/* External voltage source for the LCD */</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment">/*LCD port configuration*/</span> </span><br><span class="line">  LCD-&gt;PM[<span class="number">0x00</span>] = <span class="number">0xff</span>;           <span class="comment">/* seg 0-7 */</span></span><br><span class="line">  LCD-&gt;PM[<span class="number">0x01</span>] = <span class="number">0x3f</span>;          <span class="comment">/* seg 8,9 12,13*/</span></span><br><span class="line">  LCD-&gt;PM[<span class="number">0x02</span>] = <span class="number">0x00</span>; </span><br><span class="line">  LCD-&gt;PM[<span class="number">0x03</span>] = <span class="number">0x00</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/*Configure LCD Contrast*/</span></span><br><span class="line">  LCD-&gt;CR2 |= <span class="number">0x0E</span>;</span><br><span class="line">  <span class="comment">/*Configure LCD DeadTime*/</span></span><br><span class="line">  LCD-&gt;CR3 |= <span class="number">0x01</span>;</span><br><span class="line">  <span class="comment">/*Configures the LCD pulses on duration*/</span></span><br><span class="line">  LCD-&gt;CR2 |= <span class="number">0xA0</span>;</span><br><span class="line">  <span class="comment">/* Enable Lcd */</span></span><br><span class="line">  LCD-&gt;CR3 |= <span class="number">0x40</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="LCD段码配置"><a href="#LCD段码配置" class="headerlink" title="LCD段码配置"></a>LCD段码配置</h2><hr>
+<p>首先查看LCD规格书中的段码的对应表，本文采用的LCD如下图所示：<br><img src="https://img-blog.csdnimg.cn/3a080aa1d7f444b3864f946f29d4e79c.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6Iul5oKy5rWq,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="LCD段码"></p>
+<p>实际LCD使用的端口是COM0和COM1，查看stm8l参考手册的LCD寄存器表：<br><img src="https://img-blog.csdnimg.cn/77d4a8c35d6641f28b1361a6e842c7e3.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6Iul5oKy5rWq,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="LCD寄存器图表"></p>
+<p>如果想要点亮图标L、M、H，从上图可以看到L对应COM1的seg1[0]，M对应seg1[1]，H对应COM0的seg0[1]。</p>
+<p>因此将LCD_RAM3的高位第0位置1，就可以点亮L，图标显示代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HW_Set_LcdShowIcon</span><span class="params">(IN <span class="keyword">u8_t</span> nLcdIconNo,IN <span class="keyword">u8_t</span> nValue)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">switch</span> (nLcdIconNo)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">case</span> eLcdIcon_L:</span><br><span class="line">			   <span class="keyword">if</span> (nValue)</span><br><span class="line">				 &#123;</span><br><span class="line">					 LCD-&gt;RAM[LCD_RAMRegister_3] |= <span class="number">0x10</span>;</span><br><span class="line">				 &#125;</span><br><span class="line">				 <span class="keyword">else</span></span><br><span class="line">				 &#123;</span><br><span class="line">					 LCD-&gt;RAM[LCD_RAMRegister_3] &amp;= (~<span class="number">0x10</span>);</span><br><span class="line">				 &#125;</span><br><span class="line">				 <span class="keyword">break</span>;</span><br><span class="line">		<span class="keyword">case</span> eLcdIcon_M:</span><br><span class="line">				 <span class="keyword">if</span> (nValue)</span><br><span class="line">				 &#123;</span><br><span class="line">					 LCD-&gt;RAM[LCD_RAMRegister_3] |= <span class="number">0x20</span>;</span><br><span class="line">				 &#125;</span><br><span class="line">				 <span class="keyword">else</span></span><br><span class="line">				 &#123;</span><br><span class="line">					 LCD-&gt;RAM[LCD_RAMRegister_3] &amp;= (~<span class="number">0x20</span>);</span><br><span class="line">				 &#125;</span><br><span class="line">				 <span class="keyword">break</span>;</span><br><span class="line">		<span class="keyword">case</span> eLcdIcon_H:</span><br><span class="line">		     <span class="keyword">if</span> (nValue)</span><br><span class="line">				 &#123;</span><br><span class="line">					 LCD-&gt;RAM[LCD_RAMRegister_0] |= <span class="number">0x02</span>;</span><br><span class="line">				 &#125;</span><br><span class="line">				 <span class="keyword">else</span></span><br><span class="line">				 &#123;</span><br><span class="line">					 LCD-&gt;RAM[LCD_RAMRegister_0] &amp;= (~<span class="number">0x02</span>);</span><br><span class="line">				 &#125;</span><br><span class="line">				 <span class="keyword">break</span>;</span><br><span class="line">		<span class="keyword">case</span> eLcdIcon_COL:</span><br><span class="line">		     <span class="keyword">if</span> (nValue)</span><br><span class="line">				 &#123;</span><br><span class="line">					 LCD-&gt;RAM[LCD_RAMRegister_4] |= <span class="number">0x04</span>;</span><br><span class="line">				 &#125;</span><br><span class="line">				 <span class="keyword">else</span></span><br><span class="line">				 &#123;</span><br><span class="line">					 LCD-&gt;RAM[LCD_RAMRegister_4] &amp;= (~<span class="number">0x04</span>);</span><br><span class="line">				 &#125;</span><br><span class="line">				 <span class="keyword">break</span>;</span><br><span class="line">		<span class="keyword">case</span> eLcdIcon_PM:</span><br><span class="line">		     <span class="keyword">if</span> (nValue)</span><br><span class="line">				 &#123;</span><br><span class="line">					 LCD-&gt;RAM[LCD_RAMRegister_5] |= <span class="number">0x02</span>;</span><br><span class="line">				 &#125;</span><br><span class="line">				 <span class="keyword">else</span></span><br><span class="line">				 &#123;</span><br><span class="line">					 LCD-&gt;RAM[LCD_RAMRegister_5] &amp;= (~<span class="number">0x02</span>);</span><br><span class="line">				 &#125;</span><br><span class="line">				 <span class="keyword">break</span>;</span><br><span class="line">		<span class="keyword">case</span> eLcdIcon_S1:</span><br><span class="line">		     <span class="keyword">if</span> (nValue)</span><br><span class="line">				 &#123;</span><br><span class="line">					 LCD-&gt;RAM[LCD_RAMRegister_1] |= <span class="number">0x20</span>;</span><br><span class="line">				 &#125;</span><br><span class="line">				 <span class="keyword">else</span></span><br><span class="line">				 &#123;</span><br><span class="line">					 LCD-&gt;RAM[LCD_RAMRegister_1] &amp;= (~<span class="number">0x20</span>);</span><br><span class="line">				 &#125;</span><br><span class="line">				 <span class="keyword">break</span>;</span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line">		     <span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>注：LCD_RAMRegister_x 为宏定义，对应的是数字x。</p>
+<hr>
+<h3 id="七段数码管数字和字母显示"><a href="#七段数码管数字和字母显示" class="headerlink" title="七段数码管数字和字母显示"></a>七段数码管数字和字母显示</h3><p> <img src="https://img-blog.csdnimg.cn/8bb76b5ae87442719ec43fd5e4a2f241.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6Iul5oKy5rWq,size_11,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="数码管例图"></p>
+<p>我们将数码管各段命名，并对其进行宏定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span>  a       0x01     </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>  b       0x02     </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>  c       0x04     </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>  d       0x08    </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>  e       0x10     </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>  f       0x20    </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span>  g       0x40  </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NONE     0x00 </span></span><br></pre></td></tr></table></figure>
+
+<p>然后根据所需的数字和字母进行段码组合：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">u8_t</span> LCD_Num[]=    </span><br><span class="line">&#123; </span><br><span class="line">  &#123;a+b+c+d+e+f&#125;,               <span class="comment">//0   </span></span><br><span class="line">  &#123;c+b&#125;,                       <span class="comment">//1   </span></span><br><span class="line">  &#123;a+b+d+e+g&#125;,                 <span class="comment">//2   </span></span><br><span class="line">  &#123;a+c+b+d+g&#125;,                 <span class="comment">//3   </span></span><br><span class="line">  &#123;c+b+f+g&#125;,                   <span class="comment">//4   </span></span><br><span class="line">  &#123;a+c+f+d+g&#125;,                 <span class="comment">//5   </span></span><br><span class="line">  &#123;a+c+e+f+d+g&#125;,               <span class="comment">//6   </span></span><br><span class="line">  &#123;a+c+b&#125;,                     <span class="comment">//7   </span></span><br><span class="line">  &#123;a+c+e+b+f+d+g&#125;,             <span class="comment">//8   </span></span><br><span class="line">  &#123;a+c+b+f+d+g&#125;,               <span class="comment">//9 </span></span><br><span class="line">  &#123;b+c+d+e+f&#125;,                 <span class="comment">//U</span></span><br><span class="line">  &#123;a+d+e+f+g&#125;,                 <span class="comment">//E</span></span><br><span class="line">  &#123;a+b+c+e+f+g&#125;,               <span class="comment">//R</span></span><br><span class="line">  &#123;d+e+f&#125;,                     <span class="comment">//L</span></span><br><span class="line">  &#123;b+c+e+f+g&#125;,                 <span class="comment">//H</span></span><br><span class="line">  &#123;<span class="number">0x00</span>&#125;,                      <span class="comment">//NULL</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>此时，对于每一个种数字和字母，组合的数都是唯一的，不会出现重复的情况。</p>
+<hr>
+<p>现在我们将第二个数码管的7个段对应的寄存器位置表示出来：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">2C: seg0[5]  RAM0[5]</span><br><span class="line">2D: seg0[2]  RAM0[2]</span><br><span class="line">2E: seg0[3]  RAM0[3]</span><br><span class="line">2G: seg0[4]  RAM0[4]</span><br><span class="line">2A: seg1[4]  RAM4[0]</span><br><span class="line">2B: seg1[5]  RAM4[1]</span><br><span class="line">2F: seg1[3]  RAM3[7]</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>这样我们输入一个数num，比如1，LCD_Num[1] = {c+b}，此时c和b对应的第1和第2位将置1，然后我们将这个值赋给RAM对应的位置即可点亮2C和2D，将会显示数字1。显然实际2B2C和我们定义的数组中的bc位置不是一一对应的，所以我们需要根据实际情况进行移位操作。</p>
+<p>比如c在我们的宏定义中是第2位，而2C是在RAM0的第5位，所以将其左移3位即可。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">HW_LCD_WriteNum2</span><span class="params">(<span class="keyword">u8_t</span> nNum)</span> </span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">  <span class="comment">/* COM0-3: first page 0x00 */</span></span><br><span class="line">  <span class="comment">/* COM4-7: second page 0x04 */</span></span><br><span class="line">  LCD-&gt;CR4 = <span class="number">0x00</span>; <span class="comment">//The LCD RAM is selected as the first page</span></span><br><span class="line">  <span class="comment">//COM0  </span></span><br><span class="line">  LCD-&gt;RAM[LCD_RAMRegister_0] &amp;= (~<span class="number">0x3c</span>);  </span><br><span class="line">  LCD-&gt;RAM[LCD_RAMRegister_0] |= (<span class="keyword">u8_t</span>)((LCD_Num[nNum]&lt;&lt; <span class="number">3</span>) &amp; <span class="number">0x20</span>);<span class="comment">// 2C</span></span><br><span class="line">  LCD-&gt;RAM[LCD_RAMRegister_0] |= (<span class="keyword">u8_t</span>)((LCD_Num[nNum]&gt;&gt; <span class="number">1</span>) &amp; <span class="number">0x04</span>);<span class="comment">// 2D</span></span><br><span class="line">  LCD-&gt;RAM[LCD_RAMRegister_0] |= (<span class="keyword">u8_t</span>)((LCD_Num[nNum]&gt;&gt; <span class="number">1</span>) &amp; <span class="number">0x08</span>);<span class="comment">// 2E</span></span><br><span class="line">  LCD-&gt;RAM[LCD_RAMRegister_0] |= (<span class="keyword">u8_t</span>)((LCD_Num[nNum]&gt;&gt; <span class="number">2</span>) &amp; <span class="number">0x10</span>);<span class="comment">// 2G</span></span><br><span class="line">  <span class="comment">//COM1</span></span><br><span class="line">  LCD-&gt;RAM[LCD_RAMRegister_3] &amp;= (~<span class="number">0x80</span>);</span><br><span class="line">  LCD-&gt;RAM[LCD_RAMRegister_3] |= (<span class="keyword">u8_t</span>)((LCD_Num[nNum]&lt;&lt; <span class="number">2</span>) &amp; <span class="number">0x80</span>);<span class="comment">// 2F</span></span><br><span class="line"></span><br><span class="line">  LCD-&gt;RAM[LCD_RAMRegister_4] &amp;= (~<span class="number">0x03</span>);</span><br><span class="line">  LCD-&gt;RAM[LCD_RAMRegister_4] |= (<span class="keyword">u8_t</span>)(LCD_Num[nNum] &amp; <span class="number">0x03</span>);<span class="comment">// 2AB</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们将7个段码依次进行赋值，即可显示对应的数字和字母，这样简单的显示程序就写好了。可以根据自己需求进行进一步包装优化。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">单片机</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">stm8s</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2021/12/29/stm8lLCD%E6%98%BE%E7%A4%BA/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-stm8s硬件层配置" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
