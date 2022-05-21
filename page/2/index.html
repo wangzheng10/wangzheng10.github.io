@@ -148,6 +148,382 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-PID控制算法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/01/04/PID%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95/">PID控制算法</a>
+    </h1>
+  
+
+        
+        <a href="/2022/01/04/PID%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95/" class="archive-article-date">
+  	<time datetime="2022-01-03T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-01-04</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>PID即：Proportional（比例）、Integral（积分）、Differential（微分）的缩写。PID控制算法是结合比例、积分和微分三种环节于一体的控制算法。PID是闭环控制算法中最简单的一种，常应用于温度、电机控制等等。</p>
+<hr>
+<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><hr>
+<h2 id="公式推导"><a href="#公式推导" class="headerlink" title="公式推导"></a>公式推导</h2><p>PID公式：</p>
+<p>$$<br>u(t) = K_p(e(t) + \frac{1}{T_i}\int_0^t {e(t)}dt + T_d \frac{de(t)}{dt})<br>$$</p>
+<p>其中$K_p$为比例系数，$T_i$为积分时间，$T_d$为微分时间。</p>
+<p>看公式就可以看出这是比例部分、积分部分和微分部分的加和，因此称为PID(proportion, integration, differential)。</p>
+<p>在实际应用中，我们需要将该连续公式转化为离散公式，因此我们需要进行一下替换：</p>
+<p><strong>连续时间t</strong> $\longrightarrow$ <strong>采样时间kT</strong></p>
+<p><strong>积分</strong>$\longrightarrow$ <strong>求和</strong>:     $\int_0^t {e(t)},{\rm d}t$ $\longrightarrow$ $T\sum_{j=0}^k e(j)$</p>
+<p><strong>微分</strong>$\longrightarrow$ <strong>单位差值</strong>： $\frac{de(t)}{dt}$  $\longrightarrow$ $\frac{e_k - e_{k-1}}{T}$</p>
+<hr>
+<p>因为我们得到离散化的公式：<br>$$<br>u(k) = K_pe(k) + K_i\sum_{j=0}^ke(j) + K_d[e(k) - e(k-1)]<br>$$</p>
+<p>其中$K_i = \frac{K_pT}{T_i}$，$K_d = \frac{K_pT_d}{T}$。</p>
+<hr>
+<h2 id="位置式PID"><a href="#位置式PID" class="headerlink" title="位置式PID"></a>位置式PID</h2><p>上面得到的公式，计算的值就是位置式PID，是当前负载应该输出的值。</p>
+<p>比例项是对输出量起决定性作用的，当前值与目标值差值越大，则比例项越大。比例项越大，系统响应速度越快。</p>
+<p>需要注意的是，公式中包含积分成分，因此仅适用于不包含积分效果的负载，即实时响应的，比如发热块。</p>
+<p>并且在使用时，需要设置积分最大值，因为当误差一直为正时，积分项一直在累加，会导致积分项很大，当误差为负时，此时积分项不能及时减去，导致超调。</p>
+<p>微分项的作用是抑制变化，误差为正时，微分项为负，误差为负时，微分项为正。微分具有预测的功能，它体现的是检测值的变化趋势，适当的值有利于稳定目标值。</p>
+<p>==注：在调整PID参数时，应该先调P，再调I，最后调整D。==</p>
+<hr>
+<h2 id="增量式PID"><a href="#增量式PID" class="headerlink" title="增量式PID"></a>增量式PID</h2><p>顾名思义增量式就是当前输出量相比上一刻的输出量应该增加的值。</p>
+<p>由公式2可以得出上一刻的公式：<br>$$<br>u(k-1) = K_pe(k-1) + K_i\sum_{j=0}^{k-1}e(j) + K_d[e(k-1) - e(k-2)]<br>$$<br>公式2和公式3相减得到：<br>$$<br>\bigtriangleup u(k) = K_p(e(k) - e(k-1)) + k_ie_k + K_d[e(k) - 2e(k-1) + e(k-2)]<br>$$</p>
+<p>可以看出输出结果只与k, k-1, k-2时刻的反馈值有关，无积分作用。并且是作用于上一刻的控制量上的增加量。</p>
+<p>增量式PID可以应用于带有积分结构的负载（如步进电机）。</p>
+<hr>
+<h1 id="PID性能指标"><a href="#PID性能指标" class="headerlink" title="PID性能指标"></a>PID性能指标</h1><p>在使用PID控制时，我们需要估算此时使用的PID参数实际应用的性能如何，能否达到要求，一般从以下几点观察。</p>
+<hr>
+<hr>
+<h2 id="超调量"><a href="#超调量" class="headerlink" title="超调量"></a>超调量</h2><p>顾名思义，超调量就是实际的反馈值超过设定值的量，它所占整个调整量的百分比。</p>
+<p><img src="https://img-blog.csdnimg.cn/4ec96639bd024b2c8874bafda4590a46.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6Iul5oKy5rWq,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="PID曲线"></p>
+<p>从图中可以看出，最大动态偏差（第一个波峰超过设定值的幅度）差不多是0.16，那么超调量为0.16/1 = 16%。</p>
+<hr>
+<h2 id="调节时间"><a href="#调节时间" class="headerlink" title="调节时间"></a>调节时间</h2><p>调节时间是指从调整开始到稳态误差在要求范围内，所需要的时间，调节时间越短越好。</p>
+<p>上图的调节时间大约在50左右。</p>
+<hr>
+<h2 id="震荡频率"><a href="#震荡频率" class="headerlink" title="震荡频率"></a>震荡频率</h2><p>震荡频率表现的是系统调整的速度，一般来说震荡频率越快越好，最后趋于平稳。</p>
+<hr>
+<h2 id="上升时间"><a href="#上升时间" class="headerlink" title="上升时间"></a>上升时间</h2><p>上升时间是指实际值第一次达到设定值的时间，即快速上升阶段的时间，时间越短越好。</p>
+<hr>
+<h1 id="PID算法改进"><a href="#PID算法改进" class="headerlink" title="PID算法改进"></a>PID算法改进</h1><p>实际使用过程中，PID会有较大的局限性，导致调参过程中，根本无法达到要求，因此我们需要根据实际情况，进行改进。下面介绍几种常用的改进方法。</p>
+<hr>
+<hr>
+<h2 id="上下限设定法"><a href="#上下限设定法" class="headerlink" title="上下限设定法"></a>上下限设定法</h2><p>有些场景下，并不希望全开或者全关，因此我们需要设置最大输出值和最小输出值，$u_{min} \leq u(t) \leq u_{max}$。</p>
+<hr>
+<h2 id="死区设定法"><a href="#死区设定法" class="headerlink" title="死区设定法"></a>死区设定法</h2><p>有时候，因为PID不断地调节，使得输出曲线不断震荡，当我们需要一个平稳的曲线时，我们可以在一段区间内，使负载不受PID控制，由固定功率运行，在区间外则重新受PID控制。</p>
+<hr>
+<h2 id="积分部分改进"><a href="#积分部分改进" class="headerlink" title="积分部分改进"></a>积分部分改进</h2><p>我们知道积分部分是历史误差的和，既可以提高系统的响应速度，又可以帮助系统消除稳态误差。</p>
+<p>当前值小于设定值时，积分项一直在累加，此时帮助输出值能够更快得达到设定值；但是当前值等于设定值时，比例项为0，积分项达到最大值，仍然会有输出，它会增大系统的超调量。</p>
+<p>在当前值大于设定值时，积分项开始减小，帮助系统回到设定值。在只有比例项时，系统的振动幅度往往很大，加入积分项后，可以使系统更加稳定。</p>
+<p>为了减小积分部分对超调量的影响，我们可以做出以下改进：</p>
+<p><strong>设置积分项上限：</strong>在第一个上升阶段，有较长的时间处于低于设定值的状态，积分项增加的很快，当当前值大于设定值时，又不能及时地减去积分项，因此我们可以设定一个积分项的最大值，使得积分项不至于累加过大。</p>
+<p><strong>设置积分有效区间：</strong>上面这种情况，我们也可以设置积分的有效区间，当当前值与设定值差值过大时，积分不进行累加，只有差值在一定的范围内时，积分开始累加，这样积分项不会累加的过大。也可以将在差值过大时的积分系数减小，达到相同的效果。</p>
+<hr>
+<h2 id="微分部分改进"><a href="#微分部分改进" class="headerlink" title="微分部分改进"></a>微分部分改进</h2><p>微分部分是抑制系统输出值变化的，使系统更加稳定。它的趋势预测能力也可以帮助控制一些反馈滞后的系统，比如温度控制系统。但是微分部分往往是直接加上的，并且只持续一个时间周期，使得系统并不能稳定，且抗干扰能力减弱。</p>
+<p>因此我们需要对微分部分进行一些改进措施：</p>
+<hr>
+<h2 id="不完全微分法"><a href="#不完全微分法" class="headerlink" title="不完全微分法"></a>不完全微分法</h2><p>我们可以加入低通滤波器的方法，将微分项变得平缓一点。</p>
+<p>下图是RC电路组成的一阶低通滤波器。<br><img src="https://img-blog.csdnimg.cn/82ee19f594b24306b2fb25bf01447c7e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6Iul5oKy5rWq,size_17,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="RC低通滤波器"></p>
+<p>传递函数为：<br>$$<br>H(jw) = \frac{V_{out}}{V_{in}} = \frac{\frac{1}{jwC}}{R + \frac{1}{jwC}} = \frac{1}{1 + jwRC}<br>$$</p>
+<p>$s = jw$，则<br>$$<br>H(s) = \frac{1}{1 + sRC}<br>$$</p>
+<p>对s进行Z变化，这里采用一阶向后差分的方法：<br>$$<br>s = \frac{1 - z^{-1}}{T}<br>$$</p>
+<hr>
+<p>推导过程如下：</p>
+<p>令$\frac{U(s)}{E(s)} = \frac{1}{s}$，对其进行微分可以得到<br>$$<br>\frac{du(t)}{dt} = \frac{u(kT) - u[(k-1)T]}{T} = e(t)<br>$$</p>
+<p>那么<br>$$<br>u(kT) = u[(k-1)T] + Te(kT)<br>$$</p>
+<p>Z变换：<br>$$<br>U(z) = z^{-1}U(z) + TE(z)<br>$$</p>
+<p>则<br>$$<br>s = \frac{E(s)}{U(s)} = \frac{E(z)}{U(z)} = \frac{1-z^{-1}}{T}<br>$$</p>
+<hr>
+<p>带入公式(6)可以得到<br>$$<br>H(s) = \frac{1}{1 + \frac{1-z^{-1}}{T}RC} = \frac{T}{T + (1-z^{-1})RC}<br>$$</p>
+<p>Z逆变换后<br>$$<br>(T + RC)V_{out}(n) - RCV_{out}(n-1) = TV_{in}(n)<br>$$</p>
+<p>$$<br>\Rightarrow V_{out}(n) = \frac{TV_{in}(n) + RCV_{out}(n-1)}{T + RC}<br>= V_{out}(n-1) + \frac{T}{T + RC}(V_{in}(n) - V_{out}(n-1))<br>$$</p>
+<p>令$\alpha = \frac{T}{T + RC}$，则<br>$$<br>V_{out}(n) = \alpha V_{in}(n) + (1 - \alpha)V_{out}(n-1)<br>$$</p>
+<p>将这个公式转换到PID微分项可以得到<br>$$<br>U_d(k) = \alpha K_d [e(k) - e(k-1)] + (1 - \alpha)U_d(k-1)<br>$$</p>
+<p><strong>$\alpha$的取值为0~1，越小，滤波效果越大，当$\alpha = 0$时，没有微分效果，当$\alpha = 1$时，是没有滤波的微分，即完全微分。</strong></p>
+<p>根据实际情况，选择合适的$\alpha$值。</p>
+<hr>
+<p>公式(16)是位置式PID的微分算法，下面计算一下差值，即可得到增量式PID微分算法<br>$$<br>\bigtriangleup U_d(k) = \alpha K_d [e(k) - e(k-1)]  - \alpha U_d(k-1)<br>$$</p>
+<hr>
+<h2 id="微分先行法"><a href="#微分先行法" class="headerlink" title="微分先行法"></a>微分先行法</h2><p>前面的改善方法都是在设定值不变的情况，但是如果需要不断改变设定值的情况，使得被控量以一定规律波动。</p>
+<p>以前面的方法，是对被控量与设定值的差值进行微分，设定值频繁改变时，微分项会产生较大的突变，影响系统稳定。</p>
+<p>因此我们这里只对被控量进行微分，对设定值不进行微分。</p>
+<p>微分先行法控制如图所示：</p>
+<p><img src="https://img-blog.csdnimg.cn/80773314d2c744d6a710f11bf768ec8e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA6Iul5oKy5rWq,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" alt="PID微分先行"></p>
+<p>我们令微分部分的传递函数为<br>$$<br>\frac{U_d(s)}{Y(s)} = \frac{T_ds + 1}{\gamma T_ds + 1} \qquad 0 &lt; \gamma &lt; 1<br>$$</p>
+<p>则<br>$$<br>\gamma T_d \frac{du(t)}{dt} + u(t) = T_d \frac{dy(t)}{dt} + y(t)<br>$$</p>
+<p>将微分部分一阶滞后差分：<br>$$<br>\frac{du(t)}{dt} = \frac{u(k) - u(k-1)}{T}<br>$$</p>
+<p>$$<br>\frac{dy(t)}{dt} = \frac{y(k) - y(k-1)}{T}<br>$$</p>
+<p>带入到公式(19)中得到：<br>$$<br>u_d(k) = \frac{\gamma T_d}{\gamma T_d + T} u_d(k-1) + \frac{T_d + T}{\gamma T_d + T} y(k) - \frac{T_d}{\gamma Td + T} y(k-1)<br>$$</p>
+<p>将$K_d = \frac{K_pT_d}{T}$带入到上式中得到：</p>
+<p>$$<br>u_d(k) = \frac{\gamma K_d}{\gamma K_d + K_p} u_d(k-1) + \frac{K_d + K_p}{\gamma K_d + K_p} y(k) - \frac{K_d}{\gamma K_d + K_p} y(k-1)<br>$$</p>
+<p>上式为位置式PID的微分项，增量式PID的微分项如下：<br>$$<br>\bigtriangleup u_d(k) = -\frac{K_p}{\gamma K_d + K_p} u_d(k-1) + \frac{K_d + K_p}{\gamma K_d + K_p} y(k) - \frac{K_d}{\gamma K_d + K_p} y(k-1)<br>$$</p>
+<hr>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">单片机</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/单片机//" class="article-tag-list-link color4">单片机</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/01/04/PID%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-单片机ADC消抖处理" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/12/31/%E5%8D%95%E7%89%87%E6%9C%BAADC%E6%B6%88%E6%8A%96%E5%A4%84%E7%90%86/">单片机ADC消抖处理</a>
+    </h1>
+  
+
+        
+        <a href="/2021/12/31/%E5%8D%95%E7%89%87%E6%9C%BAADC%E6%B6%88%E6%8A%96%E5%A4%84%E7%90%86/" class="archive-article-date">
+  	<time datetime="2021-12-30T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-12-31</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>单片机在实际读取AD值时，读到的值是不稳定的，在不断的变化，如果不经过处理，直接使用，是很难获得其准确的值，因此我们需要对其进行<strong>消抖滤波</strong>处理。</p>
+<hr>
+<h1 id="滤波"><a href="#滤波" class="headerlink" title="滤波"></a>滤波</h1><p>一般来说AD值的不稳，我们可以将一段时间读取到的数值取平均值，为了防止数值突变的影响，我们可以减去最大和最小值。</p>
+<p>我们10ms读取一次AD值，取10次AD值的平均值即可。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">u16_t</span> s_wMaxAdVal = <span class="number">0</span>; <span class="comment">// AD最大值</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">u16_t</span> s_wMinAdVal = <span class="number">1023</span>; <span class="comment">// AD最小值</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">u16_t</span> s_wSumAdVal = <span class="number">0</span>; <span class="comment">// AD和</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">u16_t</span> s_wAdFiltVal = <span class="number">0</span>; <span class="comment">// 滤波后的值</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">u8_t</span> s_nAdCnt = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">AdFilter</span><span class="params">(<span class="keyword">u16_t</span> wAdData)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (wAdData &gt; s_wMaxAdVal)</span><br><span class="line">  &#123;</span><br><span class="line">    wMaxAdVal = wAdData;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (wAdData &lt; s_wMinAdVal)</span><br><span class="line">  &#123;</span><br><span class="line">    s_wMinAdVal = wAdData;</span><br><span class="line">  &#125;</span><br><span class="line">  s_nAdCnt++;</span><br><span class="line">  <span class="keyword">if</span> (s_nAdCnt &lt;= <span class="number">10</span>)</span><br><span class="line">  &#123;</span><br><span class="line">    s_wSumAdVal += wAdData;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    s_nAdCnt = <span class="number">0</span>;</span><br><span class="line">    s_wSumAdVal -=  (s_wMaxAdVal + s_wMinAdVal);</span><br><span class="line">    s_wAdFiltVal = s_wSumAdVal &gt;&gt; <span class="number">3</span>; <span class="comment">// 除以8</span></span><br><span class="line">    <span class="comment">/* 重新计算最大最小值 */</span></span><br><span class="line">    s_wMaxAdVal = <span class="number">0</span>;</span><br><span class="line">    s_wMinAdVal = <span class="number">1023</span>;</span><br><span class="line">    s_wSumAdVal = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该函数中s_wAdFiltVal的值即是滤波后的AD值。</p>
+<hr>
+<h1 id="温度转换"><a href="#温度转换" class="headerlink" title="温度转换"></a>温度转换</h1><p>通常我们可以使用热敏电阻来检测温度，但是热敏电阻的阻值和温度的关系一般不可以通过数学表达式来描述，而是根据热敏电阻的规格书中阻值和温度的关系表来查找。</p>
+<p>因此我们需要在程序中编写查找与AD值对应的温度。</p>
+<hr>
+<h2 id="硬件简述"><a href="#硬件简述" class="headerlink" title="硬件简述"></a>硬件简述</h2><p><img src="https://img-blog.csdnimg.cn/739639a291d14bda9dbfaf4b3071088b.png#pic_center" alt="NTC硬件图"><br>简单的分压计算，通过温度与阻值的关系表，计算出温度与AD值关系表。</p>
+<hr>
+<p>下面列出一个计算好的关系表：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RT_NUM 160</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MINTEMP 0</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">u16_t</span>  wRTtable[RT_NUM] =</span><br><span class="line">&#123;</span><br><span class="line"> <span class="comment">/*  0     1     2     3     4     5     6     7     8     9  */</span>   </span><br><span class="line">     <span class="number">994</span>,  <span class="number">992</span>, <span class="number">991</span>,   <span class="number">989</span>,  <span class="number">987</span>,  <span class="number">985</span>,  <span class="number">983</span>,  <span class="number">981</span>,  <span class="number">979</span>,  <span class="number">977</span>,</span><br><span class="line"> <span class="comment">/*  10    11    12    13    14    15    16    17    18    19 */</span>   </span><br><span class="line">     <span class="number">975</span>,  <span class="number">973</span>,  <span class="number">970</span>,  <span class="number">968</span>,  <span class="number">965</span>,  <span class="number">962</span>,  <span class="number">960</span>,  <span class="number">957</span>,  <span class="number">954</span>,  <span class="number">951</span>,  </span><br><span class="line"> <span class="comment">/*  20    21    22    23    24    25    26    27    28    29 */</span></span><br><span class="line">     <span class="number">947</span>,  <span class="number">944</span>,  <span class="number">941</span>,  <span class="number">937</span>,  <span class="number">934</span>,  <span class="number">930</span>,  <span class="number">926</span>,  <span class="number">922</span>,  <span class="number">918</span>,  <span class="number">913</span>,</span><br><span class="line"> <span class="comment">/*  30    31    32    33    34    35    36    37    38    39 */</span></span><br><span class="line">     <span class="number">909</span>,  <span class="number">905</span>,  <span class="number">900</span>,  <span class="number">895</span>,  <span class="number">890</span>,  <span class="number">885</span>,  <span class="number">880</span>,  <span class="number">875</span>,  <span class="number">870</span>,  <span class="number">864</span>,     </span><br><span class="line"> <span class="comment">/*  40    41    42    43    44    45    46    47    48    49 */</span></span><br><span class="line">     <span class="number">858</span>,  <span class="number">853</span>,  <span class="number">847</span>,  <span class="number">841</span>,  <span class="number">835</span>,  <span class="number">828</span>,  <span class="number">822</span>,  <span class="number">816</span>,  <span class="number">809</span>,  <span class="number">802</span>, </span><br><span class="line"> <span class="comment">/*  50    51    52    53    54    55    56    57    58    59 */</span></span><br><span class="line">     <span class="number">795</span>,  <span class="number">788</span>,  <span class="number">781</span>,  <span class="number">774</span>,  <span class="number">767</span>,  <span class="number">760</span>,  <span class="number">752</span>,  <span class="number">745</span>,  <span class="number">737</span>,  <span class="number">729</span>, </span><br><span class="line"> <span class="comment">/*  60    61    62    63    64    65    66    67    68    69 */</span></span><br><span class="line">     <span class="number">721</span>,  <span class="number">713</span>,  <span class="number">705</span>,  <span class="number">697</span>,  <span class="number">689</span>,  <span class="number">681</span>,  <span class="number">673</span>,  <span class="number">665</span>,  <span class="number">656</span>,  <span class="number">648</span>, </span><br><span class="line"> <span class="comment">/*  70    71    72    73    74    75    76    77    78    79 */</span>  </span><br><span class="line">     <span class="number">640</span>,  <span class="number">631</span>,  <span class="number">623</span>,  <span class="number">614</span>,  <span class="number">606</span>,  <span class="number">597</span>,  <span class="number">589</span>,  <span class="number">581</span>,  <span class="number">572</span>,  <span class="number">564</span>,  </span><br><span class="line"> <span class="comment">/*  80    81    82    83    84    85    86    87    88    89 */</span> </span><br><span class="line">     <span class="number">555</span>,  <span class="number">547</span>,  <span class="number">538</span>,  <span class="number">530</span>,  <span class="number">521</span>,  <span class="number">513</span>,  <span class="number">505</span>,  <span class="number">497</span>,  <span class="number">488</span>,  <span class="number">480</span>,  </span><br><span class="line"> <span class="comment">/*  90    91    92    93    94    95    96    97    98    99 */</span> </span><br><span class="line">     <span class="number">472</span>,  <span class="number">464</span>,  <span class="number">456</span>,  <span class="number">448</span>,  <span class="number">440</span>,  <span class="number">433</span>,  <span class="number">425</span>,  <span class="number">417</span>,  <span class="number">410</span>,  <span class="number">402</span>, </span><br><span class="line"> <span class="comment">/*  100   101   102   103   104   105   106   107   108   109 */</span> </span><br><span class="line">     <span class="number">395</span>,  <span class="number">388</span>,  <span class="number">381</span>,  <span class="number">374</span>,  <span class="number">366</span>,  <span class="number">360</span>,  <span class="number">353</span>,  <span class="number">346</span>,  <span class="number">339</span>,  <span class="number">333</span>, </span><br><span class="line"> <span class="comment">/*  110   111   112   113   114   115   116   117   118   119 */</span> </span><br><span class="line">     <span class="number">326</span>,  <span class="number">320</span>,  <span class="number">300</span>,  <span class="number">308</span>,  <span class="number">302</span>,  <span class="number">296</span>,  <span class="number">290</span>,  <span class="number">284</span>,  <span class="number">278</span>,  <span class="number">273</span>, </span><br><span class="line"> <span class="comment">/*  120   121   122   123   124   125   126   127   128   129 */</span> </span><br><span class="line">     <span class="number">267</span>,  <span class="number">262</span>,  <span class="number">257</span>,  <span class="number">251</span>,  <span class="number">246</span>,  <span class="number">241</span>,  <span class="number">236</span>,  <span class="number">232</span>,  <span class="number">227</span>,  <span class="number">222</span>, </span><br><span class="line"> <span class="comment">/*  130   131   132   133   134   135   136   137   138   139 */</span></span><br><span class="line">     <span class="number">218</span>,  <span class="number">213</span>,  <span class="number">209</span>,  <span class="number">205</span>,  <span class="number">200</span>,  <span class="number">196</span>,  <span class="number">192</span>,  <span class="number">188</span>,  <span class="number">184</span>,  <span class="number">181</span>, </span><br><span class="line"> <span class="comment">/*  140   141   142   143   144   145   146   147   148   149 */</span></span><br><span class="line">     <span class="number">177</span>,  <span class="number">173</span>,  <span class="number">170</span>,  <span class="number">166</span>,  <span class="number">163</span>,  <span class="number">159</span>,  <span class="number">156</span>,  <span class="number">153</span>,  <span class="number">150</span>,  <span class="number">147</span>, </span><br><span class="line"> <span class="comment">/*  150   151   152   153   154   155   156   157   158   159 */</span>    </span><br><span class="line">     <span class="number">144</span>,  <span class="number">141</span>,  <span class="number">138</span>,  <span class="number">135</span>,  <span class="number">132</span>,  <span class="number">130</span>,  <span class="number">127</span>,  <span class="number">124</span>,  <span class="number">122</span>,  <span class="number">119</span>, </span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>==注:== 温度应该是连续递增的。</p>
+<hr>
+<h2 id="温度查找"><a href="#温度查找" class="headerlink" title="温度查找"></a>温度查找</h2><p>学过C语言的同学，应该都知道二分法查找，每次将当前的值与目标范围的中间值进行比较，从而不断缩小查找范围，时间复杂度为*O($\log_{2}{n}$)*。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FindAdcTemp</span><span class="params">(<span class="keyword">u16_t</span> wAdcVal, <span class="keyword">u16_t</span> wTempData)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">u8_t</span> nBegin = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">u8_t</span> nEnd= <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">u8_t</span> nMiddle = <span class="number">0</span>;</span><br><span class="line">  <span class="comment">/* 首先判断是否超出表格的最大最小值 */</span></span><br><span class="line">  nEnd = RT_NUM <span class="number">-1</span>;</span><br><span class="line">  <span class="keyword">if</span> (wAdcVal &lt;= *(wRTtable + nEnd))</span><br><span class="line">  &#123;</span><br><span class="line">    wTempData = RT_NUM + MINTEMP;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (wAdcVal &gt;= *(wRTtable + nBegin))</span><br><span class="line">  &#123;</span><br><span class="line">    wTempData = MINTEMP;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="comment">/* 当温度在表格范围内 */</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">while</span> ((nBegin &lt; nEnd) &amp;&amp; (wAdcVal != *(wRTtable + nMiddle)))</span><br><span class="line">    &#123;</span><br><span class="line">      nMiddle = nBegin + (nEnd - nBegin)&gt;&gt;<span class="number">1</span>;</span><br><span class="line">      <span class="keyword">if</span> (wAdcVal &gt; *(wRTtable + nMiddle))</span><br><span class="line">      &#123;</span><br><span class="line">        nEnd = nMiddle - <span class="number">1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">      &#123;</span><br><span class="line">        nBegin = nMiddle + <span class="number">1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    wTempData = MINTEMP + (nBegin <span class="number">-1</span>);</span><br><span class="line">    <span class="comment">/* 接下来要计算当前的值更偏向于前一个还是后一个数 */</span></span><br><span class="line">    <span class="keyword">if</span> (wAdcVal &lt; *(wRTtable + nBegin <span class="number">-1</span>))</span><br><span class="line">    &#123;</span><br><span class="line">      wDiffAdcVal = (*(wRTtable + nBegin <span class="number">-1</span>) - wAdcVal)*<span class="number">10</span>;</span><br><span class="line">      wDiffAdcVal /= *(wRTtable + nBegin <span class="number">-1</span>) - *(wRTtable + nBegin);</span><br><span class="line">      <span class="keyword">if</span> (wDiffAdcVal &gt;= <span class="number">5</span>) <span class="comment">// 四舍五入</span></span><br><span class="line">      &#123;</span><br><span class="line">        wTempData = MINTEMP + nBegin;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们只要调用<em>FindAdcTemp</em>这个函数，就可以根据当前的AD值，计算得到最接近的温度值。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">单片机</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/单片机//" class="article-tag-list-link color4">单片机</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2021/12/31/%E5%8D%95%E7%89%87%E6%9C%BAADC%E6%B6%88%E6%8A%96%E5%A4%84%E7%90%86/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-单片机温度计算插值法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/12/31/%E5%8D%95%E7%89%87%E6%9C%BA%E6%B8%A9%E5%BA%A6%E8%AE%A1%E7%AE%97%E6%8F%92%E5%80%BC%E6%B3%95/">单片机温度计算插值法</a>
+    </h1>
+  
+
+        
+        <a href="/2021/12/31/%E5%8D%95%E7%89%87%E6%9C%BA%E6%B8%A9%E5%BA%A6%E8%AE%A1%E7%AE%97%E6%8F%92%E5%80%BC%E6%B3%95/" class="archive-article-date">
+  	<time datetime="2021-12-30T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-12-31</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>前面我们在根据AD值计算温度时，用到的是二分查找法，此种方法的复杂度为*O($\log_{2}{n}$)*，如果n较大时，仍然有不小的工作量，因此本文在此方法的基础上进一步改进，减少计算复杂度。</p>
+<hr>
+<h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1><p>二分法的计算方法如下：</p>
+<p>$$mid = begin + (end - begin)/2$$</p>
+<p>我们可以将$\frac{1}{2}$更改为更接近于目标值的位置，一般来说温度与AD值是成反比的，因此我们可以进行如下更改：</p>
+<p>$$mid = begin + \frac{<em>(RTtable + begin) - AdcVal}{</em>(RTtable + begin) - *(RTtable + end)} \times (end - begin)$$</p>
+<p>此时的计算复杂度为*O($\log_{2}({\log_{2}{n}}))$*，计算度更小。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FindAdcTemp</span><span class="params">(<span class="keyword">u16_t</span> wAdcVal, <span class="keyword">u8_t</span> *wRTtable, <span class="keyword">u16_t</span> wTempData)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">u8_t</span> nBegin = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">u8_t</span> nEnd= <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">u8_t</span> nMiddle = <span class="number">0</span>;</span><br><span class="line">  <span class="comment">/* 首先判断是否超出表格的最大最小值 */</span></span><br><span class="line">  nEnd = RT_NUM <span class="number">-1</span>;</span><br><span class="line">  <span class="keyword">if</span> (wAdcVal &lt;= *(wRTtable + nEnd))</span><br><span class="line">  &#123;</span><br><span class="line">    wTempData = RT_NUM + MINTEMP;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (wAdcVal &gt;= *(wRTtable + nBegin))</span><br><span class="line">  &#123;</span><br><span class="line">    wTempData = MINTEMP;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="comment">/* 当温度在表格范围内 */</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">while</span> ((nBegin &lt; nEnd) &amp;&amp; (wAdcVal != *(wRTtable + nMiddle)))</span><br><span class="line">    &#123;</span><br><span class="line">      nMiddle = nBegin + (nEnd - nBegin) * (*(wRTtable + begin) - wAdcVal) / (*(wRTtable + begin) - *(wRTtable + end));</span><br><span class="line">      <span class="keyword">if</span> (wAdcVal &gt; *(wRTtable + nMiddle))</span><br><span class="line">      &#123;</span><br><span class="line">        nEnd = nMiddle - <span class="number">1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">      &#123;</span><br><span class="line">        nBegin = nMiddle + <span class="number">1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    wTempData = MINTEMP + (nBegin <span class="number">-1</span>);</span><br><span class="line">    <span class="comment">/* 接下来要计算当前的值更偏向于前一个还是后一个数 */</span></span><br><span class="line">    <span class="keyword">if</span> (wAdcVal &lt; *(wRTtable + nBegin <span class="number">-1</span>))</span><br><span class="line">    &#123;</span><br><span class="line">      wDiffAdcVal = (*(wRTtable + nBegin <span class="number">-1</span>) - wAdcVal)*<span class="number">10</span>;</span><br><span class="line">      wDiffAdcVal /= *(wRTtable + nBegin <span class="number">-1</span>) - *(wRTtable + nBegin);</span><br><span class="line">      <span class="keyword">if</span> (wDiffAdcVal &gt;= <span class="number">5</span>) <span class="comment">// 四舍五入</span></span><br><span class="line">      &#123;</span><br><span class="line">        wTempData = MINTEMP + nBegin;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">单片机</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/单片机//" class="article-tag-list-link color4">单片机</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2021/12/31/%E5%8D%95%E7%89%87%E6%9C%BA%E6%B8%A9%E5%BA%A6%E8%AE%A1%E7%AE%97%E6%8F%92%E5%80%BC%E6%B3%95/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-单片机按键识别" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
