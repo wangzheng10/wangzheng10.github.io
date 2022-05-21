@@ -148,6 +148,155 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-克鲁斯卡尔算法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/05/07/%E5%85%8B%E9%B2%81%E6%96%AF%E5%8D%A1%E5%B0%94%E7%AE%97%E6%B3%95/">克鲁斯卡尔算法</a>
+    </h1>
+  
+
+        
+        <a href="/2022/05/07/%E5%85%8B%E9%B2%81%E6%96%AF%E5%8D%A1%E5%B0%94%E7%AE%97%E6%B3%95/" class="archive-article-date">
+  	<time datetime="2022-05-06T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-05-07</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>普利姆（Prim）算法是以某个顶点为起点，逐步寻找各个顶点上权值最小的边来构建生成树。</p>
+<p>而克鲁斯卡尔（Kruskal）算法是以边为目标，直接寻找权值最小的边来构建生成树，并在构建中不形成回路。</p>
+</blockquote>
+<h1 id="一、定义"><a href="#一、定义" class="headerlink" title="一、定义"></a>一、定义</h1><blockquote>
+<p>假设N = (V, {E})是一个连通网，则令最小生成树的初始状态为只有n个顶点而无边的非连通图T = {V, {}}，图中每个顶点自成一个连通分量。在E中选择代价最小的边，若该边依附的顶点落在T中不同的连通分量上，则将此边加入到T中，否则舍去此边而选择下一条代价最小的边。依次类推，直至T中所有顶点都在同一连通分量上为止。</p>
+</blockquote>
+<hr>
+<h1 id="二、实现思路"><a href="#二、实现思路" class="headerlink" title="二、实现思路"></a>二、实现思路</h1><p>下图是一个连通网，我们以此来介绍普利姆算法的实现过程。</p>
+<img src="https://img-blog.csdnimg.cn/943f82132f1546f18ed9a10553420143.png#pic_center" alt="连通网" style="zoom:40%;">
+
+<hr>
+<p>（1）首先设立最小生成树的初始状态T = {V, {}}，只有顶点，没有边，寻找权值最小的边，显然是$(v_1,v_5)$最小。</p>
+<p>==注==：红色边为最小生成树的边，黑色线为连通网的边。</p>
+<img src="/.com//图\克鲁斯卡尔1.png" style="zoom:60%;">
+
+
+
+<p>（2）然后$(v_1,v_7)$边权值最小</p>
+<img src="/.com//图\克鲁斯卡尔2.png" style="zoom:60%;">
+
+
+
+<p>（3）此时有两条边的权值均为8，这里先取$(v_0,v_1)$边</p>
+<img src="/.com//图\克鲁斯卡尔3.png" style="zoom:60%;">
+
+<p>（4）添加$(v_4,v_5)$边</p>
+<img src="/.com//图\克鲁斯卡尔4.png" style="zoom:60%;">
+
+<p>（5）添加$(v_3,v_7)$边</p>
+<img src="/.com//图\克鲁斯卡尔5.png" style="zoom:60%;">
+
+<p>（6）因为$(v_2,v_3)$边的两个顶点在同一连通分量中，如果添加此边，则会形成回路，所以添加$(v_0,v_5)$边</p>
+<img src="/.com//图\克鲁斯卡尔6.png" style="zoom:60%;">
+
+<p>（7）添加$(v_4,v_6)$边</p>
+<img src="/.com//图\克鲁斯卡尔7.png" style="zoom:60%;">
+
+
+
+<p>（8）添加$(v_5,v_8)$边</p>
+<img src="/.com//图\克鲁斯卡尔8.png" style="zoom:60%;">
+
+
+
+<p>此时所有顶点都在同一连通分量上，红色边所有顶点构造的树即为最小生成树。</p>
+<hr>
+<h1 id="三、程序解析"><a href="#三、程序解析" class="headerlink" title="三、程序解析"></a>三、程序解析</h1><h2 id="1-临接矩阵转换为边集数组"><a href="#1-临接矩阵转换为边集数组" class="headerlink" title="1. 临接矩阵转换为边集数组"></a>1. 临接矩阵转换为边集数组</h2><p>（1）因为无向图的邻接矩阵是对称矩阵，那么边集数组只需要统计矩阵的右上半即可。<code>edge[]</code>用于存储图的每一条边。</p>
+<p>（2）对边安装权值排序，由大到小，这里使用比较简单的冒泡排序法。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//邻接矩阵转边集数组，按照权值排序，由小到大</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MGraph2EdgeArr</span><span class="params">(MGraph G, Edge* edge)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, j, k=<span class="number">0</span>;</span><br><span class="line">    Edge temp;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//将边数据填入edge中</span></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; G.numVertexes; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span> (j = i + <span class="number">1</span>; j &lt; G.numVertexes; j++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (G.arc[i][j] != INFINITY)    <span class="comment">//有边</span></span><br><span class="line">            &#123;</span><br><span class="line">                edge[k].begin = i;</span><br><span class="line">                edge[k].end = j;</span><br><span class="line">                edge[k].weight = G.arc[i][j];</span><br><span class="line">                k++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//冒泡排序</span></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; k; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span> (j = i+<span class="number">1</span>; j &lt; k; j++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (edge[j].weight &lt; edge[i].weight)</span><br><span class="line">            &#123;</span><br><span class="line">                temp = edge[i];</span><br><span class="line">                edge[i] = edge[j];</span><br><span class="line">                edge[j] = temp;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<hr>
+<h2 id="2-克鲁斯卡尔算法程序"><a href="#2-克鲁斯卡尔算法程序" class="headerlink" title="2. 克鲁斯卡尔算法程序"></a>2. 克鲁斯卡尔算法程序</h2><p>（1）<code>parent</code>数组：将同一连通分量的顶点串起来，下标为<code>edge.begin</code>，即各边的尾顶点下标，<code>parent</code>存储的值是边的头顶点下标，如果某一个顶点是两个边的尾，则在<strong>上一个边的头顶点位置</strong>存储<strong>下一个边的头顶点下标</strong>。</p>
+<p>比如最小生成树依次添加了$(v_1,v_2)$，$(v_1,v_7)$，$(v_0,v_1)$，此时<code>parent</code>发生如下变化：</p>
+<p>在添加$(v_1,v_7)$关系时，因为$parent[1] = 2$，$parent[2] = 0$，因此使$parent[2] = 7$。</p>
+<p><img src="/.com//%5C%E5%9B%BE%5Cparent1.png"></p>
+<p>如何判断两个顶点是否在同一连通分量呢？</p>
+<p>可以根据<code>parent</code>观察，因为$parent[0] = 7,\ parent[7] = 0$，所以$v_0, v_7$在同一分量中，取名为连通分量A；因为$parent[1] = 2, \ parent[2] = 7$，所以$v_1, v_2, v_7$，它们均在连通分量A中。</p>
+<p>我们只需要判断连线顶点的结尾顶点是否相同，如$v_1,v_2$连线均以$v_7$为结尾。</p>
+<p>（2）按照权值从小到大遍历所有边，<code>Find</code>函数查找边的<strong>两端顶点</strong>所在的连通分量的<strong>结尾顶点</strong>，如果不同，则认为可以将此边添加到最小生成树中，不存在回路，打印该边信息。更新<code>parent</code>信息，将两个顶点所在的<strong>连通分量</strong>连接起来。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MiniSpanTree_Kruskal</span><span class="params">(MGraph G)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, n, m;</span><br><span class="line">    Edge edges[MAXEDGE]; <span class="comment">//定义边集数组</span></span><br><span class="line">    <span class="keyword">int</span> parent[MAXEDGE]; <span class="comment">//定义一数组用来判断边与边是否形成环路</span></span><br><span class="line"></span><br><span class="line">    MGraph2EdgeArr(G, edges); <span class="comment">//将邻接矩阵转换为边集数组</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; G.numEdges; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        parent[i] = <span class="number">0</span>; <span class="comment">//初始化数组值为0</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; G.numEdges; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        n = Find(parent, edges[i].begin);</span><br><span class="line">        m = Find(parent, edges[i].end);</span><br><span class="line">        <span class="keyword">if</span> (n != m) <span class="comment">//判断edges[i].begin和edges[i].end是否在同一连通分量中</span></span><br><span class="line">        &#123;</span><br><span class="line">            parent[n] = m; <span class="comment">//将edges[i].begin与edges[i].end连线</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot; (%d, %d) %d &quot;</span>, edges[i].begin, edges[i].end, edges[i].weight);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line"><span class="comment">/* 查找连线顶点的尾部下标 */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">Find</span><span class="params">(<span class="keyword">int</span>* parent, <span class="keyword">int</span> f)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (parent[f] &gt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        f = parent[f];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> f;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-测试"><a href="#3-测试" class="headerlink" title="3. 测试"></a>3. 测试</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;CreateGraph.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;kruskal.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">    MGraph G;</span><br><span class="line">    CreateMgraph(&amp;G);</span><br><span class="line">    MiniSpanTree_Kruskal(G);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>打印输出：</p>
+<p><img src="/.com//%5C%E5%9B%BE%5Ckruskal_print.png"></p>
+<hr>
+<h1 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h1><blockquote>
+<p>因为Find函数的时间复杂度为$O(loge)$，e为连通网的边数，且for循环e次，则卡鲁斯卡尔的时间复杂度为$O(eloge)$。该算法主要针对边来展开，因此对于边数少的连通网来说，效率比较高。</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/数据结构//" class="article-tag-list-link color5">数据结构</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/05/07/%E5%85%8B%E9%B2%81%E6%96%AF%E5%8D%A1%E5%B0%94%E7%AE%97%E6%B3%95/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-普利姆算法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -253,6 +402,177 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2022/05/06/%E6%99%AE%E5%88%A9%E5%A7%86%E7%AE%97%E6%B3%95/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-栈" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/05/05/%E6%A0%88/">栈</a>
+    </h1>
+  
+
+        
+        <a href="/2022/05/05/%E6%A0%88/" class="archive-article-date">
+  	<time datetime="2022-05-04T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-05-05</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>栈（stack）是限定仅在表尾插入和删除操作的线性表。我们把允许插入和删除的一端称为栈顶（top），另一端称为栈底（bottom），不含任何数据元素的栈称为空栈。栈又称为后进先出的线性表。</p>
+</blockquote>
+<p><strong>栈的插入操作，叫做进栈，也称为压栈、入栈</strong>。</p>
+<p><strong>栈的删除操作，叫做出栈，也称为弹栈</strong>。</p>
+<p><img src="https://img-blog.csdnimg.cn/c5d86287a7744c86b883307f7f56d28d.png#pic_center" alt="进出栈"></p>
+<hr>
+<hr>
+<h1 id="栈的顺序存储结构"><a href="#栈的顺序存储结构" class="headerlink" title="栈的顺序存储结构"></a>栈的顺序存储结构</h1><p>顺序存储就是用数组来实现的栈，是一种特殊的线性表，可以简称为<font color="#dd00dd">顺序栈</font>。</p>
+<p>栈的结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXSIZE (100) <span class="comment">//栈的最大存储数据量</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">STACK</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">int</span> data[MAXSIZE]; <span class="comment">//用于存储数据的数组</span></span><br><span class="line">    <span class="keyword">int</span> top; <span class="comment">//栈顶指针</span></span><br><span class="line">&#125;SqStack;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>进栈操作如下：</p>
+<p>（1）检查是否满栈，满栈则退出并返回错误；</p>
+<p>（2）栈顶指针<code>top</code>向上移动一位，将要插入的数据赋给栈顶。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">enum</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    FALSE = <span class="number">0</span>,</span><br><span class="line">    TRUE</span><br><span class="line">&#125;<span class="keyword">bool</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">Push</span><span class="params">(SqStack *S, <span class="keyword">int</span> data)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (S-&gt;top == MAXSIZE - <span class="number">1</span>) <span class="comment">//满栈</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    S-&gt;top++; <span class="comment">//栈顶指针加一</span></span><br><span class="line">    S-&gt;data[S-&gt;top] = data; <span class="comment">//将数据赋给栈顶</span></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>出栈操作如下：</p>
+<p>（1）检查是否为空栈，若是则退出并返回错误；</p>
+<p>（2）将栈顶数据赋给<code>*data</code>（<font color="#006600">函数参数的传递是必须要用指针的，C++最好用引用</font>），栈顶指针向下移动一位。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">Pop</span><span class="params">(SqStack *S, <span class="keyword">int</span> *data)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (S-&gt;top == <span class="number">-1</span>) <span class="comment">//空栈</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    *data = S-&gt;data[S-&gt;top]; <span class="comment">//将栈顶数据赋给data</span></span><br><span class="line">    S-&gt;top--; <span class="comment">//栈顶指针减一</span></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>验证一下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    SqStack S;</span><br><span class="line">    S.top = <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">int</span> data1;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        Push(&amp;S, i); <span class="comment">//向栈中放入0-9的数</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (Pop(&amp;S, &amp;data1)) <span class="comment">//取出栈中所有数据，并打印</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>, data1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://img-blog.csdnimg.cn/efbb0c27aa6142449086c0848a337ed0.png#pic_center" alt="栈例程1"></p>
+<hr>
+<hr>
+<h1 id="两栈共享空间"><a href="#两栈共享空间" class="headerlink" title="两栈共享空间"></a>两栈共享空间</h1><blockquote>
+<p>将数组的两端作为两个栈的栈底，栈顶向中间靠拢，那么相比定义两个数组，可以提高空间的利用率。</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/c607e5a5a2394430a65ddb77b4826f0a.png#pic_center" alt="共享栈"></p>
+<p>栈的结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">DOUBLESTACK</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">int</span> data[MAXSIZE];</span><br><span class="line">    <span class="keyword">int</span> top1; <span class="comment">// 栈1栈顶指针</span></span><br><span class="line">    <span class="keyword">int</span> top2; <span class="comment">// 栈2栈顶指针</span></span><br><span class="line">&#125;SqDoubleStack;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>进栈操作如下：</p>
+<p>（1）当<code>top1</code>和<code>top2</code>相邻时，满栈，退出并返回错误；</p>
+<p>（2）<code>StackNo</code>是选择将数据放入栈1还是栈2。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">Push_Double</span><span class="params">(SqDoubleStack *S, <span class="keyword">int</span> data, <span class="keyword">int</span> StackNo)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (S-&gt;top1 + <span class="number">1</span> == S-&gt;top2) <span class="comment">//满栈</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="number">1</span> == StackNo) <span class="comment">// 判断是放入那个栈中</span></span><br><span class="line">    &#123;</span><br><span class="line">        S-&gt;top1++;</span><br><span class="line">        S-&gt;data[S-&gt;top1] = data;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        S-&gt;top2--;</span><br><span class="line">        S-&gt;data[S-&gt;top2] = data;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>出栈操作如下：</p>
+<p>（1）根据<code>StackNo</code>判断从栈1或栈2出栈；</p>
+<p>（2）判断栈1或栈2是否为空栈，若为空，则返回错误，否则将栈顶元素赋给<code>*data</code>，并向栈底移动<code>top</code>指针。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">Pop_Double</span><span class="params">(SqDoubleStack *S, <span class="keyword">int</span> *data, <span class="keyword">int</span> StackNo)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="number">1</span> == StackNo)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="number">-1</span> == S-&gt;top1) <span class="comment">//栈1是空栈</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> FALSE;</span><br><span class="line">        &#125;</span><br><span class="line">        *data = S-&gt;data[S-&gt;top1];</span><br><span class="line">        S-&gt;top1--;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (MAXSIZE == S-&gt;top2) <span class="comment">//栈2是空栈</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span> FALSE;</span><br><span class="line">        &#125;</span><br><span class="line">        *data = S-&gt;data[S-&gt;top2];</span><br><span class="line">        S-&gt;top2++;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>测试程序：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    SqDoubleStack DS;</span><br><span class="line">    <span class="comment">/* 栈顶指针初始化 */</span></span><br><span class="line">    DS.top1 = <span class="number">-1</span>; </span><br><span class="line">    DS.top2 = MAXSIZE;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> data1;</span><br><span class="line">    <span class="keyword">int</span> data2;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        Push_Double(&amp;DS, i, <span class="number">1</span>);</span><br><span class="line">        Push_Double(&amp;DS, -i, <span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Stack1:\n&quot;</span>);</span><br><span class="line">    <span class="keyword">while</span> (Pop_Double(&amp;DS, &amp;data1, <span class="number">1</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>, data1); <span class="comment">//打印栈1内所有数据</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\nStack2:\n&quot;</span>);</span><br><span class="line">    <span class="keyword">while</span> (Pop_Double(&amp;DS, &amp;data2, <span class="number">2</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>, data2); <span class="comment">//打印栈2内所有数据</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://img-blog.csdnimg.cn/1f6752d84170493c9ba85e34a31ca22a.png#pic_center" alt="栈例程2"></p>
+<hr>
+<hr>
+<h1 id="栈的链式存储结构"><a href="#栈的链式存储结构" class="headerlink" title="栈的链式存储结构"></a>栈的链式存储结构</h1><blockquote>
+<p>线性表有顺序存储和链式存储结构，栈是一种特殊的线性表，那么也有链式存储结构，简称链栈。<br>将链表的头指针作为栈的栈顶指针，因为有栈顶指针，就不需要链表的头结点了。</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/5426ad2e00e84ccdaf77d26d6a39db70.png#pic_center" alt="链栈"></p>
+<p>链栈的结构定义如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">StackNode</span> //结点</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">int</span> data;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">StackNode</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125;StackNode; </span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">LinkStack</span> //栈顶指针和结点数</span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    StackNode *top;</span><br><span class="line">    <span class="keyword">int</span> count;</span><br><span class="line">&#125;LinkStack;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>进栈操作如下：</p>
+<p>（1）申请一个新结点，存储进栈数据；</p>
+<p>（2）将新结点插入到链表的最前端，使其<code>next</code>指向原先的<code>top</code>结点，最后使<code>top</code>指向新结点。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">Push_Link</span><span class="params">(LinkStack *S, <span class="keyword">int</span> data)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    StackNode *SNode = (StackNode *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(StackNode)); <span class="comment">//申请一个结点大小的内存</span></span><br><span class="line"></span><br><span class="line">    SNode-&gt;data = data; <span class="comment">//将数据赋给结点</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 将新结点插入链表中 */</span></span><br><span class="line">    SNode-&gt;next = S-&gt;top;</span><br><span class="line">    S-&gt;top = SNode;</span><br><span class="line"></span><br><span class="line">    S-&gt;count++; <span class="comment">//链表长度+1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>出栈操作如下：</p>
+<p>（1）检查是否为空栈，若是，则返回错误，否则将栈顶指针指向的数据赋给<code>*data</code>；</p>
+<p>（2）删除栈顶结点：定义一个指针p，指向栈顶结点，将栈顶指针<code>top</code>指向下一个结点，删除原来的栈顶结点。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">Pop_Link</span><span class="params">(LinkStack *S, <span class="keyword">int</span> *data)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (S == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> FALSE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    *data = S-&gt;top-&gt;data; <span class="comment">//将栈顶数据赋给*data</span></span><br><span class="line"></span><br><span class="line">    StackNode *p;</span><br><span class="line">    p = S-&gt;top; <span class="comment">//定义一个指针p，指向栈顶结点</span></span><br><span class="line">    S-&gt;top = S-&gt;top-&gt;next; <span class="comment">//将栈顶指针指向下一个结点</span></span><br><span class="line">    <span class="built_in">free</span>(p); <span class="comment">//删除原来的栈顶结点</span></span><br><span class="line">    S-&gt;count--;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>测试程序：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* 链栈定义并初始化 */</span></span><br><span class="line">    LinkStack LS;</span><br><span class="line">    LS.count = <span class="number">0</span>;</span><br><span class="line">    LS.top = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">int</span> data1;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 依次进栈0-9 */</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        Push_Link(&amp;LS, i);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 出栈并打印所有元素 */</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;链栈(长度:%d)：\n&quot;</span>, LS.count);</span><br><span class="line">    <span class="keyword">while</span>(LS.count &gt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        Pop_Link(&amp;LS, &amp;data1);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>, data1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://img-blog.csdnimg.cn/11738c57373b4df3a8de1b640d2702cc.png#pic_center" alt="栈例程3"></p>
+<hr>
+<p><font color="#dd0000">顺序栈和链栈的时间复杂度是一样的，都是<code>O(1)</code>，如果栈内的元素数量变化小且可控，可以使用顺序栈，链栈因为每个结点都有指针域，增加了一定的内存开销；如果栈内的元素数量不可控，最好使用链表，根据实际需求变化长度，不会造成大量的空间浪费。</font></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/数据结构//" class="article-tag-list-link color5">数据结构</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/05/05/%E6%A0%88/">展开全文 >></a>
         </p>
       
 
@@ -1426,253 +1746,9 @@
 
 
   
-    <article id="post-C++重载" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/03/25/C++%E9%87%8D%E8%BD%BD/">C++函数重载</a>
-    </h1>
-  
-
-        
-        <a href="/2022/03/25/C++%E9%87%8D%E8%BD%BD/" class="archive-article-date">
-  	<time datetime="2022-03-24T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-03-25</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>@<a href="%E7%9B%AE%E5%BD%95">TOC</a></p>
-<hr>
-<p>重载是C++新增的机制，将语义和功能相似的函数用同一个名字表示，提高函数的通用性。</p>
-<h1 id="重载"><a href="#重载" class="headerlink" title="重载"></a>重载</h1><p>特征：<br>（1）相同范围<br>（2）函数名相同<br>（3）参数不同<br>（4）virtual可有可无<br>全局函数和成员函数即使名称和参数相同，两者也是互不干扰。<br>在同一范围内，各种参数类型的<code>MyPrint</code>函数都可以直接调用，只要明确实参的类型即可。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MyPrint</span><span class="params">(<span class="keyword">int</span> num)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;int: &quot;</span> &lt;&lt; num &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MyPrint</span><span class="params">(<span class="keyword">float</span> num)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;float: &quot;</span> &lt;&lt; num &lt;&lt; endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">         <span class="function"><span class="keyword">void</span> <span class="title">MyPrint</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;cout &lt;&lt; <span class="string">&quot;class int: &quot;</span> &lt;&lt; num &lt;&lt; endl;&#125;</span><br><span class="line">         <span class="function"><span class="keyword">void</span> <span class="title">MyPrint</span><span class="params">(<span class="keyword">float</span> num)</span> </span>&#123;cout &lt;&lt; <span class="string">&quot;class float: &quot;</span> &lt;&lt; num &lt;&lt; endl;&#125;</span><br><span class="line">         <span class="function"><span class="keyword">void</span> <span class="title">MyPrint</span><span class="params">(<span class="keyword">char</span> num)</span> </span>&#123;cout &lt;&lt; <span class="string">&quot;class char: &quot;</span> &lt;&lt; num &lt;&lt; endl;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">MyPrint</span>(<span class="number">1</span>); <span class="comment">// int: 1</span></span><br><span class="line">  <span class="built_in">MyPrint</span>(<span class="number">1.1f</span>); <span class="comment">// float: 1 浮点型必须要显式类型，否则编译器不知道该转换为int还是float。</span></span><br><span class="line">  Test test1;</span><br><span class="line">  test1.<span class="built_in">MyPrint</span>(<span class="number">2</span>); <span class="comment">// class int: 2</span></span><br><span class="line">  test1.<span class="built_in">MyPrint</span>(<span class="number">2.1f</span>); <span class="comment">// class float: 2.1</span></span><br><span class="line">  test1.<span class="built_in">MyPrint</span>(<span class="string">&quot;helloc&quot;</span>); <span class="comment">// class char: helloc</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<hr>
-<h1 id="覆盖"><a href="#覆盖" class="headerlink" title="覆盖"></a>覆盖</h1><p>特征：<br>（1）不同范围（指派生类和基类）<br>（2）函数名相同<br>（3）参数相同<br>（4）基类函数的virtual关键词必须有<br>基类<code>h(int a)</code>被派生类的<code>h(int a)</code>所覆盖</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">h</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;cout &lt;&lt; <span class="string">&quot;Base h(int): &quot;</span> &lt;&lt; a &lt;&lt; endl;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span> :</span> <span class="keyword">public</span> Base</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">h</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;cout &lt;&lt; <span class="string">&quot;h(int): &quot;</span> &lt;&lt; a &lt;&lt; endl;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  Derived dr;</span><br><span class="line">  Base *p = &amp;dr;</span><br><span class="line">  p-&gt;<span class="built_in">h</span>(<span class="number">2</span>); <span class="comment">// h(int): 2</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<hr>
-<h1 id="隐藏"><a href="#隐藏" class="headerlink" title="隐藏"></a>隐藏</h1><p>隐藏是指派生类的函数隐藏了基类的同名函数。<br>特征：<br>（1）不同范围（派生类和基类）<br>（2）函数名相同<br>（3）若参数不同，则基类函数被隐藏；若参数相同，且基类没有<code>virtual</code>关键词，则隐藏。（有<code>virtual</code>被覆盖）</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;cout &lt;&lt; <span class="string">&quot;Base f(int): &quot;</span> &lt;&lt; a &lt;&lt; endl;&#125; <span class="comment">//隐藏</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">g</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;cout &lt;&lt; <span class="string">&quot;Base g(int): &quot;</span> &lt;&lt; a &lt;&lt; endl;&#125; <span class="comment">//隐藏</span></span><br><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">h</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;cout &lt;&lt; <span class="string">&quot;Base h(int): &quot;</span> &lt;&lt; a &lt;&lt; endl;&#125; <span class="comment">//覆盖</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Derived</span> :</span> <span class="keyword">public</span> Base</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">f</span><span class="params">(<span class="keyword">float</span> a)</span> </span>&#123;cout &lt;&lt; <span class="string">&quot;f(int): &quot;</span> &lt;&lt; a &lt;&lt; endl;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">g</span><span class="params">(<span class="keyword">float</span> a)</span> </span>&#123;cout &lt;&lt; <span class="string">&quot;g(int): &quot;</span> &lt;&lt; a &lt;&lt; endl;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">h</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;cout &lt;&lt; <span class="string">&quot;h(int): &quot;</span> &lt;&lt; a &lt;&lt; endl;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Derived d;</span><br><span class="line">    Base *p = &amp;d;</span><br><span class="line"></span><br><span class="line">    p-&gt;<span class="built_in">f</span>(<span class="number">1</span>); <span class="comment">// Base f(int): 1</span></span><br><span class="line">    d.<span class="built_in">f</span>(<span class="number">2</span>); <span class="comment">// f(int): 2</span></span><br><span class="line"></span><br><span class="line">    p-&gt;<span class="built_in">g</span>(<span class="number">3</span>); <span class="comment">// Base g(int): 3</span></span><br><span class="line">    d.<span class="built_in">g</span>(<span class="number">4</span>); <span class="comment">// g(int): 4</span></span><br><span class="line"></span><br><span class="line">    p-&gt;<span class="built_in">h</span>(<span class="number">5</span>); <span class="comment">// h(int): 5</span></span><br><span class="line">    d.<span class="built_in">h</span>(<span class="number">6</span>); <span class="comment">// h(int): 6</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<hr>
-<h1 id="重载运算符"><a href="#重载运算符" class="headerlink" title="重载运算符"></a>重载运算符</h1><p>在C++中可以用<code>operator</code>加上运算符来替代函数名，表示函数。<br>下例程序完成<code>+</code>和<code>-</code>运算符的重载，需要注意的是，<code>+</code>函数定义了2个形参，必须要使用<code>friend</code>关键词，将成员函数改为友员函数，友员函数没有<code>this</code>指针。全局函数和友员函数相同。<br>成员函数默认第一个形参省略，用<code>this</code>指针代替。</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Symbol</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">friend</span> Symbol <span class="keyword">operator</span> +(Symbol&amp; a, Symbol&amp; b)</span><br><span class="line">    &#123;</span><br><span class="line">        Symbol s;</span><br><span class="line">        s.Length = a.Length + b.Length;</span><br><span class="line">        s.Width = a.Width + b.Width;</span><br><span class="line">        s.Height = a.Height + b.Height;</span><br><span class="line">        <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line">    Symbol <span class="keyword">operator</span> -(Symbol&amp; a)</span><br><span class="line">    &#123;</span><br><span class="line">        Symbol s;</span><br><span class="line">        s.Length = <span class="keyword">this</span>-&gt;Length - a.Length;</span><br><span class="line">        s.Width = <span class="keyword">this</span>-&gt;Width - a.Width;</span><br><span class="line">        s.Height = <span class="keyword">this</span>-&gt;Height - a.Height;</span><br><span class="line">        <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> Length;</span><br><span class="line">    <span class="keyword">int</span> Width;</span><br><span class="line">    <span class="keyword">int</span> Height;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Symbol a;</span><br><span class="line">    Symbol b;</span><br><span class="line">    Symbol s;</span><br><span class="line"></span><br><span class="line">    a.Length = <span class="number">1</span>;</span><br><span class="line">    a.Width = <span class="number">2</span>;</span><br><span class="line">    a.Height = <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line">    b.Length = <span class="number">4</span>;</span><br><span class="line">    b.Width = <span class="number">5</span>;</span><br><span class="line">    b.Height = <span class="number">6</span>;</span><br><span class="line"></span><br><span class="line">    s = a + b;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;s.Length: &quot;</span> &lt;&lt;s.Length &lt;&lt; <span class="string">&quot;\ns.Width: &quot;</span> &lt;&lt; s.Width \</span><br><span class="line">    &lt;&lt; <span class="string">&quot;\ns.Height: &quot;</span> &lt;&lt; s.Height &lt;&lt; endl;</span><br><span class="line">    <span class="comment">// s.Length: 5 </span></span><br><span class="line">    <span class="comment">// s.Width:7</span></span><br><span class="line">    <span class="comment">// s.Height:9</span></span><br><span class="line">    </span><br><span class="line">    s = b - a;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;\ns.Length: &quot;</span> &lt;&lt;s.Length &lt;&lt; <span class="string">&quot;\ns.Width: &quot;</span> &lt;&lt; s.Width \</span><br><span class="line">    &lt;&lt; <span class="string">&quot;\ns.Height: &quot;</span> &lt;&lt; s.Height &lt;&lt; endl;</span><br><span class="line">    <span class="comment">// s.Length: 3</span></span><br><span class="line">    <span class="comment">// s.Width:3</span></span><br><span class="line">    <span class="comment">// s.Height:3</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>从语法规则上来说，运算符既可以定义为全局函数，又可以定义为成员函数，但因为一些运算符的常用性，有以下建议：<br>（1）一元运算符：建议重载为成员函数；<br>（2）<code>=, (), [], -&gt;</code> ：只能重载为成员函数；<br>（3）<code>+=, -=, /=, *=, &amp;=, |=, ~=, %=, &gt;&gt;=, &lt;&lt;= </code>：建议重载为成员函数。</p>
-<p>为了防止错误和混乱，有一些运算符是不允许被重载的：<br>（1）数据类型（<code>int, float, double, char</code>等运算符）；<br>（2）成员访问运算符<code>.</code>；<br>（4）C++运算符集合没有的符号，比如<code>@, $</code>，预处理符<code>#</code>；</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/C语言//" class="article-tag-list-link color4">C语言</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/03/25/C++%E9%87%8D%E8%BD%BD/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-指针总结" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/03/22/%E6%8C%87%E9%92%88%E6%80%BB%E7%BB%93/">C语言指针总结与应用</a>
-    </h1>
-  
-
-        
-        <a href="/2022/03/22/%E6%8C%87%E9%92%88%E6%80%BB%E7%BB%93/" class="archive-article-date">
-  	<time datetime="2022-03-21T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-03-22</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>@<a href="%E7%9B%AE%E5%BD%95">TOC</a></p>
-<hr>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><h2 id="指针的定义"><a href="#指针的定义" class="headerlink" title="指针的定义"></a>指针的定义</h2><p>我们使用*表示指针，例如</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *p; <span class="comment">//定义一个指针P,指向的内容为int类型。</span></span><br><span class="line"><span class="keyword">int</span> *p[n]; <span class="comment">//[]的优先级高于*，则p是一个长度为n的数组，数组内的元素为指针类型，指向的内容为int型。</span></span><br><span class="line"><span class="keyword">int</span> (*p)[n]; <span class="comment">//指针p指向一个数组，数组内的元素为int类型。</span></span><br><span class="line"><span class="keyword">int</span> **p;  <span class="comment">//二级指针，指针p指向*p，仍然是一个指针，*p指向的内容为int型，一般用于函数的形参。</span></span><br><span class="line"><span class="keyword">int</span> (*p)(<span class="keyword">int</span>); <span class="comment">//指针p指向一个函数，函数的形参类型为int，返回值为int。</span></span><br></pre></td></tr></table></figure>
-<p>指针的值代表的是地址，是指向的内存区的首地址，指针所占用的空间只受系统寻址位数影响，如果是32位系统，则指针占用4个字节，如果是16位系统，则占用2个字节。</p>
-<hr>
-<hr>
-<h1 id="指针的常用方法"><a href="#指针的常用方法" class="headerlink" title="指针的常用方法"></a>指针的常用方法</h1><ol>
-<li>代指一个变量<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">3</span>;</span><br><span class="line"><span class="keyword">int</span> *p = &amp;a;</span><br><span class="line">*p = <span class="number">4</span>;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>, a); <span class="comment">// a = 4</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<hr>
-<ol start="2">
-<li>表示数组<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a[<span class="number">10</span>];</span><br><span class="line"><span class="keyword">int</span> *p = a;</span><br><span class="line"><span class="keyword">int</span> i;</span><br><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++)</span><br><span class="line">&#123;</span><br><span class="line">  *p++ = i;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>, a[i]); <span class="comment">// a[i] = i</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-<hr>
-<ol start="3">
-<li>指向结构体<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">PhoneParameter</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">int</span> m_Length;</span><br><span class="line">  <span class="keyword">int</span> m_Width;</span><br><span class="line">  <span class="keyword">int</span> m_Height;</span><br><span class="line">&#125;PhPar;</span><br><span class="line"></span><br><span class="line">PhPar st_MyPhPar = &#123;<span class="number">15</span>, <span class="number">7</span>, <span class="number">1</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">CalVolume</span><span class="params">(PhPar *pstPar)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> Vol;</span><br><span class="line">  Vol = pstPar-&gt;m_Length * pstPar-&gt;m_Width * pstPar-&gt;m_Height;</span><br><span class="line">  <span class="keyword">return</span> Vol;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>, CalVolume(&amp;st_MyPhPar)); <span class="comment">//105</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<hr>
-<ol start="4">
-<li>指向函数<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> n = <span class="number">6</span>;</span><br><span class="line"><span class="keyword">int</span> <span class="built_in">array</span>[n] = &#123;<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">SumFun</span><span class="params">(<span class="keyword">int</span> *a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    sum += *a++;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>, SumFun(<span class="built_in">array</span>)); <span class="comment">//21</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<hr>
-<hr>
-<h1 id="指针与引用"><a href="#指针与引用" class="headerlink" title="指针与引用"></a>指针与引用</h1><p>指针和引用具有相似之处，他们都可以操作一个内容。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">int</span> b = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">int</span> *p = &amp;a; <span class="comment">//指针</span></span><br><span class="line"><span class="keyword">int</span> &amp;m = a;  <span class="comment">//引用</span></span><br><span class="line">m = <span class="number">3</span>;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%d %d&quot;</span>, a, *p); <span class="comment">//3 3</span></span><br><span class="line">p = &amp;b;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>, *p); <span class="comment">//2</span></span><br></pre></td></tr></table></figure>
-<p>引用需要注意：<br>（1）<strong>引用定义时必须要初始化，明确引用对象；但指针可以是空指针</strong>；<br>（2）<strong>引用初始化后，不能改变引用对象；但指针可以改变指向的内容</strong>。</p>
-<p>引用的作用主要是传递函数中的参数和返回值。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 值传递</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Test1</span><span class="params">(<span class="keyword">int</span> a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  a++;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 引用传递</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Test2</span><span class="params">(<span class="keyword">int</span> &amp;a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  a++;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 指针传递</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Test3</span><span class="params">(<span class="keyword">int</span> *a)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  (*a)++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> k1 = k2 = k3 = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;K1: %d, K2: %d, k3: %d&quot;</span>, Test1(k1), Test2(k2), Test3(k3));</span><br><span class="line"><span class="comment">//k1: 0, K2: 1, k3: 1</span></span><br></pre></td></tr></table></figure>
-<p>引用能做的事，指针也可以做，但是指针的权限太大，可能过导致一些不可预料的结果，因此能够用引用的地方使用引用，可以提高系统的稳定性。</p>
-<hr>
-<hr>
-<h1 id="指针与数组"><a href="#指针与数组" class="headerlink" title="指针与数组"></a>指针与数组</h1><p>指针和数组在许多应用上是相似的，但他们有很多区别。<br>数组在被创建时，其地址已经固定，只能改变数组的内容；数组可以创建在静态存储区和栈中。<br>指针可以指向任意的内存区，功能性很强大，但也更加危险，可能会导致内容泄露和野指针现象。</p>
-<ol>
-<li>修改内容<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> a[] = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line"><span class="keyword">char</span> *p = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line"></span><br><span class="line">a[<span class="number">0</span>] = <span class="string">&#x27;m&#x27;</span>; <span class="comment">// a[] = &quot;mello&quot;</span></span><br><span class="line">p[<span class="number">0</span>] = <span class="string">&#x27;m&#x27;</span>; <span class="comment">// 错误，指针p是真相常量&quot;hello&quot;，无法更改内容</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<hr>
-<ol start="2">
-<li>复制内容<br>指针和数组的复制，不能直接使用<code>b = a</code>和<code>b = p</code>来复制，因为a和p代表的是地址，这样复制过去的是地址而不是内容。所以需要使用标准库函数<code>strcpy</code>进行复制。<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//数组</span></span><br><span class="line"><span class="keyword">char</span> a[] = <span class="string">&quot;hello&quot;</span>; <span class="comment">//&quot;&quot;默认以&#x27;\0&#x27;结尾，所以有6个字符</span></span><br><span class="line"><span class="keyword">char</span> b[<span class="number">6</span>];</span><br><span class="line"><span class="built_in">strcpy</span>(b, a);</span><br><span class="line">cout &lt;&lt; b &lt;&lt; endl; <span class="comment">// b[] = &quot;hello&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//指针</span></span><br><span class="line"><span class="keyword">char</span> *p = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(<span class="number">6</span>); <span class="comment">//指针用于存储内容时，需要申请一块内存。空指针无法复制内容</span></span><br><span class="line"><span class="built_in">strcpy</span>(p, a);</span><br><span class="line">count &lt;&lt; p &lt;&lt; endl; <span class="comment">//p = &quot;hello&quot;</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<hr>
-<p>函数<code>strcpy</code>如何执行的，也建议了解一下，需要注意的是输入参数需要判断一下非空，提高系统的稳定性。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span> *<span class="title">strcpy</span><span class="params">(<span class="keyword">char</span> *strDest, <span class="keyword">const</span> <span class="keyword">char</span> *strSrc)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  assert((strDest != <span class="literal">NULL</span>) &amp;&amp; (strSrc != <span class="literal">NULL</span>));</span><br><span class="line">  <span class="keyword">char</span> *address = strDest;</span><br><span class="line">  <span class="keyword">while</span>(*strSrc != <span class="string">&#x27;\0&#x27;</span>)</span><br><span class="line">  &#123;</span><br><span class="line">    *strDest++ = *strSrc++;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> address;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<hr>
-<h1 id="指针与内存"><a href="#指针与内存" class="headerlink" title="指针与内存"></a>指针与内存</h1><p>不可以使用函数的输入参数指针，去申请动态内存。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ApplyMemory</span><span class="params">(<span class="keyword">char</span> *p, <span class="keyword">int</span> num)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  p = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(num);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">char</span> *a = <span class="literal">NULL</span>;</span><br><span class="line"><span class="built_in">ApplyMemory</span>(a, <span class="number">6</span>);</span><br><span class="line"><span class="keyword">if</span> (a == <span class="literal">NULL</span>)</span><br><span class="line">&#123;</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;a = NULL&quot;</span> &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>函数中的指针，只能改变其内容，因为输入的实参a和形参p在编译的时候，是2个指针，指向同一个内容，在为p申请内存时，改变了p的地址，但a的地址并没有改变，因此a仍然为空指针。<br>并且为形参p申请的内存并没有释放，造成==内存泄露==。</p>
-<hr>
-<p>因为函数的指针只能传递其内容，那么我们想要通过指针申请内容，是可以通过二级指针来达到目的的。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ApplyMemory</span><span class="params">(<span class="keyword">char</span> **p, <span class="keyword">int</span> num)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  *p = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(num);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">char</span> *a = <span class="literal">NULL</span>;</span><br><span class="line"><span class="built_in">ApplyMemory</span>(&amp;a, <span class="number">6</span>);</span><br><span class="line"><span class="keyword">if</span> (a != <span class="literal">NULL</span>)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">strcpy</span>(a, <span class="string">&quot;hello&quot;</span>);</span><br><span class="line">  cout &lt;&lt; <span class="string">&quot;a: &quot;</span> &lt;&lt; a &lt;&lt; endl;</span><br><span class="line">  <span class="built_in">free</span>(a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<p>如果不想用二级指针，可以利用函数返回值传递申请的内容地址。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span> *<span class="title">ApplyMemory</span><span class="params">(<span class="keyword">int</span> num)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> *p = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(num);</span><br><span class="line">  <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">char</span> *a = <span class="literal">NULL</span>;</span><br><span class="line">a = ApplyMemory(<span class="number">6</span>);</span><br><span class="line"><span class="keyword">if</span> (a != <span class="literal">NULL</span>)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">strcpy</span>(a, <span class="string">&quot;hello&quot;</span>);</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;a: &quot;</span> &lt;&lt; a &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">  <span class="built_in">free</span>(a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<p>内存分为<strong>堆区、栈区、静态区、代码区</strong>，我们使用<code>malloc</code>申请的动态内存存储在堆区，长期有效，需要与<code>free</code>配合使用，两者的数量必须相同，否则会产生内存泄露。</p>
-<p>需要注意的是，==<code>return</code>不能返回栈内存的指针==。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span> *<span class="title">ApplyMemory</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> a[] = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">  <span class="keyword">return</span> a; <span class="comment">//错误</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">char</span> *b = <span class="literal">NULL</span>;</span><br><span class="line">b = ApplyMemory();</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; b &lt;&lt; <span class="built_in">endl</span>; <span class="comment">//无法预测</span></span><br></pre></td></tr></table></figure>
-<p>栈内存在函数执行完成后，会自动消除，因此函数返回的地址所指向的内容是随机的，而不是”hello”。</p>
-<hr>
-<h2 id="野指针"><a href="#野指针" class="headerlink" title="野指针"></a>野指针</h2><p>什么是野指针？<br>野指针是指向垃圾内存的指针，它不是<strong>NULL</strong>指针，会对程序造成严重的影响，因为一般函数的输入参数只做非空判断，无法判断是否是野指针。</p>
-<p>（1）指针变量没有初始化。<br>指针创建时，它的值时随机的，随意指向某个地方，可能是代码区、静态区等等，如果对其指向的内容进行改变，将会造成严重的后果。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *p = <span class="literal">NULL</span>;</span><br><span class="line"><span class="keyword">int</span> *a = (<span class="keyword">int</span> *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">int</span>) * <span class="number">10</span>);</span><br></pre></td></tr></table></figure>
-<p>创建时可以将指针设为空指针或者为其申请一个动态内存。</p>
-<p>（2）指针被<code>free</code>释放后，没有置为<strong>NULL</strong>。<br><code>free</code>只是释放了其指向的空间，并没有消除指针本身，它仍然指向之前所指向的地址。如果程序仍然对其内容进行改变，也会造成严重的后果。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *p = (<span class="keyword">int</span> *)<span class="built_in">malloc</span>(<span class="number">100</span>);</span><br><span class="line"><span class="built_in">strcpy</span>(p, &#123;<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>&#125;);</span><br><span class="line"><span class="built_in">free</span>(p);</span><br><span class="line">p = <span class="literal">NULL</span>;</span><br></pre></td></tr></table></figure>
-<p>（3）指针操作超过了变量范围。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> a[] = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line"><span class="keyword">char</span> *p = a;</span><br><span class="line">*(p+<span class="number">10</span>) = <span class="string">&#x27;a&#x27;</span>; <span class="comment">//错误</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Test</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> b[] = <span class="string">&quot;stack&quot;</span>;</span><br><span class="line">  p = b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Test();<span class="comment">//结束后，局部变量b被消除</span></span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; p &lt;&lt; <span class="built_in">endl</span>; <span class="comment">//p是野指针</span></span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="内存耗尽"><a href="#内存耗尽" class="headerlink" title="内存耗尽"></a>内存耗尽</h2><p>如果内存耗尽后，<code>malloc</code>会返回<strong>NULL</strong>指针。<br>可以利用<code>return</code>终止本函数的运行，或者利用<code>exit(1)</code>终止整个程序的运行。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">CheckMemory</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> *p = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(<span class="number">1</span>);</span><br><span class="line">  <span class="keyword">if</span> (p == <span class="literal">NULL</span>)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span>; <span class="comment">//终止本函数运行</span></span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">1</span>);<span class="comment">//终止整个程序运行</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/C语言//" class="article-tag-list-link color4">C语言</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/03/22/%E6%8C%87%E9%92%88%E6%80%BB%E7%BB%93/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
     </nav>
   
 
