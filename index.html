@@ -182,34 +182,35 @@
 <hr>
 <p>（1）首先设立最小生成树的初始状态T = {V, {}}，只有顶点，没有边，寻找权值最小的边，显然是$(v_1,v_5)$最小。</p>
 <p>==注==：红色边为最小生成树的边，黑色线为连通网的边。</p>
-<img src="/.com//图\克鲁斯卡尔1.png" style="zoom:60%;">
+<center><img src="https://img-blog.csdnimg.cn/08738bd616984c52b6acd929051703c4.png" width="40%"></center>
 
 
 
 <p>（2）然后$(v_1,v_7)$边权值最小</p>
-<img src="/.com//图\克鲁斯卡尔2.png" style="zoom:60%;">
+<center><img src="https://img-blog.csdnimg.cn/24c63f195fa94be5add0a4df8b3a1332.png" width="40%"></center>
 
 
 
 <p>（3）此时有两条边的权值均为8，这里先取$(v_0,v_1)$边</p>
-<img src="/.com//图\克鲁斯卡尔3.png" style="zoom:60%;">
+<center><img src="https://img-blog.csdnimg.cn/3271649841894d2587e408833ff9ada9.png" width="40%"></center>
 
 <p>（4）添加$(v_4,v_5)$边</p>
-<img src="/.com//图\克鲁斯卡尔4.png" style="zoom:60%;">
+<center><img src="https://img-blog.csdnimg.cn/cfd8576eb908406fad96571d360ce4d5.png" width="40%"></center>
+
 
 <p>（5）添加$(v_3,v_7)$边</p>
-<img src="/.com//图\克鲁斯卡尔5.png" style="zoom:60%;">
-
+<p>center&gt;<img src="https://img-blog.csdnimg.cn/be156c76e1d64234b0a1168bd46c3288.png" width="40%"></p>
 <p>（6）因为$(v_2,v_3)$边的两个顶点在同一连通分量中，如果添加此边，则会形成回路，所以添加$(v_0,v_5)$边</p>
-<img src="/.com//图\克鲁斯卡尔6.png" style="zoom:60%;">
+<center><img src="https://img-blog.csdnimg.cn/0c75027679814064a8d1067437a2969e.png" width="40%"></center>
 
 <p>（7）添加$(v_4,v_6)$边</p>
-<img src="/.com//图\克鲁斯卡尔7.png" style="zoom:60%;">
+<center><img src="https://img-blog.csdnimg.cn/778791562bda4af0a556beea41b4209b.png" width="40%"></center>
+
 
 
 
 <p>（8）添加$(v_5,v_8)$边</p>
-<img src="/.com//图\克鲁斯卡尔8.png" style="zoom:60%;">
+<center><img src="https://img-blog.csdnimg.cn/ce1e64ae29f84954890cb0b5880548cc.png" width="40%"></center>
 
 
 
@@ -225,7 +226,7 @@
 <h2 id="2-克鲁斯卡尔算法程序"><a href="#2-克鲁斯卡尔算法程序" class="headerlink" title="2. 克鲁斯卡尔算法程序"></a>2. 克鲁斯卡尔算法程序</h2><p>（1）<code>parent</code>数组：将同一连通分量的顶点串起来，下标为<code>edge.begin</code>，即各边的尾顶点下标，<code>parent</code>存储的值是边的头顶点下标，如果某一个顶点是两个边的尾，则在<strong>上一个边的头顶点位置</strong>存储<strong>下一个边的头顶点下标</strong>。</p>
 <p>比如最小生成树依次添加了$(v_1,v_2)$，$(v_1,v_7)$，$(v_0,v_1)$，此时<code>parent</code>发生如下变化：</p>
 <p>在添加$(v_1,v_7)$关系时，因为$parent[1] = 2$，$parent[2] = 0$，因此使$parent[2] = 7$。</p>
-<p><img src="/.com//%5C%E5%9B%BE%5Cparent1.png"></p>
+<p><img src="https://img-blog.csdnimg.cn/c2eb604fab9447428ae0456410c4906c.png#pic_center" alt="parent"></p>
 <p>如何判断两个顶点是否在同一连通分量呢？</p>
 <p>可以根据<code>parent</code>观察，因为$parent[0] = 7,\ parent[7] = 0$，所以$v_0, v_7$在同一分量中，取名为连通分量A；因为$parent[1] = 2, \ parent[2] = 7$，所以$v_1, v_2, v_7$，它们均在连通分量A中。</p>
 <p>我们只需要判断连线顶点的结尾顶点是否相同，如$v_1,v_2$连线均以$v_7$为结尾。</p>
@@ -239,7 +240,7 @@
 
 
 <p>打印输出：</p>
-<p><img src="/.com//%5C%E5%9B%BE%5Ckruskal_print.png"></p>
+<p><img src="https://img-blog.csdnimg.cn/d15a4c5c19f7456d8cfd53bcc95f69e1.png#pic_center" alt="kruskal_print"></p>
 <hr>
 <h1 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h1><blockquote>
 <p>因为Find函数的时间复杂度为$O(loge)$，e为连通网的边数，且for循环e次，则卡鲁斯卡尔的时间复杂度为$O(eloge)$。该算法主要针对边来展开，因此对于边数少的连通网来说，效率比较高。</p>
@@ -687,6 +688,17 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">数据结构</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
@@ -1869,6 +1881,10 @@ MathJax.Hub.Queue(function() {
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">stm8s</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">数据结构</a>
               </li>
             
             <div class="clearfix"></div>

@@ -6,22 +6,15 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>单片机ADC消抖处理 | Hexo</title>
+  <title>Tag: 数据结构 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="前言单片机在实际读取AD值时，读到的值是不稳定的，在不断的变化，如果不经过处理，直接使用，是很难获得其准确的值，因此我们需要对其进行消抖滤波处理。  滤波一般来说AD值的不稳，我们可以将一段时间读取到的数值取平均值，为了防止数值突变的影响，我们可以减去最大和最小值。 我们10ms读取一次AD值，取10次AD值的平均值即可。 123456789101112131415161718192021222">
-<meta property="og:type" content="article">
-<meta property="og:title" content="单片机ADC消抖处理">
-<meta property="og:url" content="http://example.com/2021/12/31/%E5%8D%95%E7%89%87%E6%9C%BAADC%E6%B6%88%E6%8A%96%E5%A4%84%E7%90%86/index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="前言单片机在实际读取AD值时，读到的值是不稳定的，在不断的变化，如果不经过处理，直接使用，是很难获得其准确的值，因此我们需要对其进行消抖滤波处理。  滤波一般来说AD值的不稳，我们可以将一段时间读取到的数值取平均值，为了防止数值突变的影响，我们可以减去最大和最小值。 我们10ms读取一次AD值，取10次AD值的平均值即可。 123456789101112131415161718192021222">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://img-blog.csdnimg.cn/739639a291d14bda9dbfaf4b3071088b.png#pic_center">
-<meta property="article:published_time" content="2021-12-30T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-01-02T14:19:48.143Z">
 <meta property="article:author" content="John Doe">
-<meta property="article:tag" content="单片机">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://img-blog.csdnimg.cn/739639a291d14bda9dbfaf4b3071088b.png#pic_center">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -153,265 +146,71 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-单片机ADC消抖处理" class="article article-type-post " itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
+            
   
-    <h1 class="article-title" itemprop="name">
-      单片机ADC消抖处理
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2022" class="archive-year">2022</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	<a href="/2022/04/29/%E9%98%9F%E5%88%97/" class="archive-article-date">
+  	<time datetime="2022-04-28T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-04-29</time>
+</a>
+        </div>
+    	 
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/2022/04/29/%E9%98%9F%E5%88%97/">队列</a>
     </h1>
   
 
-        
-        <a href="/2021/12/31/%E5%8D%95%E7%89%87%E6%9C%BAADC%E6%B6%88%E6%8A%96%E5%A4%84%E7%90%86/" class="archive-article-date">
-  	<time datetime="2021-12-30T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-12-31</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>单片机在实际读取AD值时，读到的值是不稳定的，在不断的变化，如果不经过处理，直接使用，是很难获得其准确的值，因此我们需要对其进行<strong>消抖滤波</strong>处理。</p>
-<hr>
-<h1 id="滤波"><a href="#滤波" class="headerlink" title="滤波"></a>滤波</h1><p>一般来说AD值的不稳，我们可以将一段时间读取到的数值取平均值，为了防止数值突变的影响，我们可以减去最大和最小值。</p>
-<p>我们10ms读取一次AD值，取10次AD值的平均值即可。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">u16_t</span> s_wMaxAdVal = <span class="number">0</span>; <span class="comment">// AD最大值</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">u16_t</span> s_wMinAdVal = <span class="number">1023</span>; <span class="comment">// AD最小值</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">u16_t</span> s_wSumAdVal = <span class="number">0</span>; <span class="comment">// AD和</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">u16_t</span> s_wAdFiltVal = <span class="number">0</span>; <span class="comment">// 滤波后的值</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">u8_t</span> s_nAdCnt = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">AdFilter</span><span class="params">(<span class="keyword">u16_t</span> wAdData)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (wAdData &gt; s_wMaxAdVal)</span><br><span class="line">  &#123;</span><br><span class="line">    wMaxAdVal = wAdData;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (wAdData &lt; s_wMinAdVal)</span><br><span class="line">  &#123;</span><br><span class="line">    s_wMinAdVal = wAdData;</span><br><span class="line">  &#125;</span><br><span class="line">  s_nAdCnt++;</span><br><span class="line">  <span class="keyword">if</span> (s_nAdCnt &lt;= <span class="number">10</span>)</span><br><span class="line">  &#123;</span><br><span class="line">    s_wSumAdVal += wAdData;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    s_nAdCnt = <span class="number">0</span>;</span><br><span class="line">    s_wSumAdVal -=  (s_wMaxAdVal + s_wMinAdVal);</span><br><span class="line">    s_wAdFiltVal = s_wSumAdVal &gt;&gt; <span class="number">3</span>; <span class="comment">// 除以8</span></span><br><span class="line">    <span class="comment">/* 重新计算最大最小值 */</span></span><br><span class="line">    s_wMaxAdVal = <span class="number">0</span>;</span><br><span class="line">    s_wMinAdVal = <span class="number">1023</span>;</span><br><span class="line">    s_wSumAdVal = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>该函数中s_wAdFiltVal的值即是滤波后的AD值。</p>
-<hr>
-<h1 id="温度转换"><a href="#温度转换" class="headerlink" title="温度转换"></a>温度转换</h1><p>通常我们可以使用热敏电阻来检测温度，但是热敏电阻的阻值和温度的关系一般不可以通过数学表达式来描述，而是根据热敏电阻的规格书中阻值和温度的关系表来查找。</p>
-<p>因此我们需要在程序中编写查找与AD值对应的温度。</p>
-<hr>
-<h2 id="硬件简述"><a href="#硬件简述" class="headerlink" title="硬件简述"></a>硬件简述</h2><p><img src="https://img-blog.csdnimg.cn/739639a291d14bda9dbfaf4b3071088b.png#pic_center" alt="NTC硬件图"><br>简单的分压计算，通过温度与阻值的关系表，计算出温度与AD值关系表。</p>
-<hr>
-<p>下面列出一个计算好的关系表：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> RT_NUM 160</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MINTEMP 0</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">u16_t</span>  wRTtable[RT_NUM] =</span><br><span class="line">&#123;</span><br><span class="line"> <span class="comment">/*  0     1     2     3     4     5     6     7     8     9  */</span>   </span><br><span class="line">     <span class="number">994</span>,  <span class="number">992</span>, <span class="number">991</span>,   <span class="number">989</span>,  <span class="number">987</span>,  <span class="number">985</span>,  <span class="number">983</span>,  <span class="number">981</span>,  <span class="number">979</span>,  <span class="number">977</span>,</span><br><span class="line"> <span class="comment">/*  10    11    12    13    14    15    16    17    18    19 */</span>   </span><br><span class="line">     <span class="number">975</span>,  <span class="number">973</span>,  <span class="number">970</span>,  <span class="number">968</span>,  <span class="number">965</span>,  <span class="number">962</span>,  <span class="number">960</span>,  <span class="number">957</span>,  <span class="number">954</span>,  <span class="number">951</span>,  </span><br><span class="line"> <span class="comment">/*  20    21    22    23    24    25    26    27    28    29 */</span></span><br><span class="line">     <span class="number">947</span>,  <span class="number">944</span>,  <span class="number">941</span>,  <span class="number">937</span>,  <span class="number">934</span>,  <span class="number">930</span>,  <span class="number">926</span>,  <span class="number">922</span>,  <span class="number">918</span>,  <span class="number">913</span>,</span><br><span class="line"> <span class="comment">/*  30    31    32    33    34    35    36    37    38    39 */</span></span><br><span class="line">     <span class="number">909</span>,  <span class="number">905</span>,  <span class="number">900</span>,  <span class="number">895</span>,  <span class="number">890</span>,  <span class="number">885</span>,  <span class="number">880</span>,  <span class="number">875</span>,  <span class="number">870</span>,  <span class="number">864</span>,     </span><br><span class="line"> <span class="comment">/*  40    41    42    43    44    45    46    47    48    49 */</span></span><br><span class="line">     <span class="number">858</span>,  <span class="number">853</span>,  <span class="number">847</span>,  <span class="number">841</span>,  <span class="number">835</span>,  <span class="number">828</span>,  <span class="number">822</span>,  <span class="number">816</span>,  <span class="number">809</span>,  <span class="number">802</span>, </span><br><span class="line"> <span class="comment">/*  50    51    52    53    54    55    56    57    58    59 */</span></span><br><span class="line">     <span class="number">795</span>,  <span class="number">788</span>,  <span class="number">781</span>,  <span class="number">774</span>,  <span class="number">767</span>,  <span class="number">760</span>,  <span class="number">752</span>,  <span class="number">745</span>,  <span class="number">737</span>,  <span class="number">729</span>, </span><br><span class="line"> <span class="comment">/*  60    61    62    63    64    65    66    67    68    69 */</span></span><br><span class="line">     <span class="number">721</span>,  <span class="number">713</span>,  <span class="number">705</span>,  <span class="number">697</span>,  <span class="number">689</span>,  <span class="number">681</span>,  <span class="number">673</span>,  <span class="number">665</span>,  <span class="number">656</span>,  <span class="number">648</span>, </span><br><span class="line"> <span class="comment">/*  70    71    72    73    74    75    76    77    78    79 */</span>  </span><br><span class="line">     <span class="number">640</span>,  <span class="number">631</span>,  <span class="number">623</span>,  <span class="number">614</span>,  <span class="number">606</span>,  <span class="number">597</span>,  <span class="number">589</span>,  <span class="number">581</span>,  <span class="number">572</span>,  <span class="number">564</span>,  </span><br><span class="line"> <span class="comment">/*  80    81    82    83    84    85    86    87    88    89 */</span> </span><br><span class="line">     <span class="number">555</span>,  <span class="number">547</span>,  <span class="number">538</span>,  <span class="number">530</span>,  <span class="number">521</span>,  <span class="number">513</span>,  <span class="number">505</span>,  <span class="number">497</span>,  <span class="number">488</span>,  <span class="number">480</span>,  </span><br><span class="line"> <span class="comment">/*  90    91    92    93    94    95    96    97    98    99 */</span> </span><br><span class="line">     <span class="number">472</span>,  <span class="number">464</span>,  <span class="number">456</span>,  <span class="number">448</span>,  <span class="number">440</span>,  <span class="number">433</span>,  <span class="number">425</span>,  <span class="number">417</span>,  <span class="number">410</span>,  <span class="number">402</span>, </span><br><span class="line"> <span class="comment">/*  100   101   102   103   104   105   106   107   108   109 */</span> </span><br><span class="line">     <span class="number">395</span>,  <span class="number">388</span>,  <span class="number">381</span>,  <span class="number">374</span>,  <span class="number">366</span>,  <span class="number">360</span>,  <span class="number">353</span>,  <span class="number">346</span>,  <span class="number">339</span>,  <span class="number">333</span>, </span><br><span class="line"> <span class="comment">/*  110   111   112   113   114   115   116   117   118   119 */</span> </span><br><span class="line">     <span class="number">326</span>,  <span class="number">320</span>,  <span class="number">300</span>,  <span class="number">308</span>,  <span class="number">302</span>,  <span class="number">296</span>,  <span class="number">290</span>,  <span class="number">284</span>,  <span class="number">278</span>,  <span class="number">273</span>, </span><br><span class="line"> <span class="comment">/*  120   121   122   123   124   125   126   127   128   129 */</span> </span><br><span class="line">     <span class="number">267</span>,  <span class="number">262</span>,  <span class="number">257</span>,  <span class="number">251</span>,  <span class="number">246</span>,  <span class="number">241</span>,  <span class="number">236</span>,  <span class="number">232</span>,  <span class="number">227</span>,  <span class="number">222</span>, </span><br><span class="line"> <span class="comment">/*  130   131   132   133   134   135   136   137   138   139 */</span></span><br><span class="line">     <span class="number">218</span>,  <span class="number">213</span>,  <span class="number">209</span>,  <span class="number">205</span>,  <span class="number">200</span>,  <span class="number">196</span>,  <span class="number">192</span>,  <span class="number">188</span>,  <span class="number">184</span>,  <span class="number">181</span>, </span><br><span class="line"> <span class="comment">/*  140   141   142   143   144   145   146   147   148   149 */</span></span><br><span class="line">     <span class="number">177</span>,  <span class="number">173</span>,  <span class="number">170</span>,  <span class="number">166</span>,  <span class="number">163</span>,  <span class="number">159</span>,  <span class="number">156</span>,  <span class="number">153</span>,  <span class="number">150</span>,  <span class="number">147</span>, </span><br><span class="line"> <span class="comment">/*  150   151   152   153   154   155   156   157   158   159 */</span>    </span><br><span class="line">     <span class="number">144</span>,  <span class="number">141</span>,  <span class="number">138</span>,  <span class="number">135</span>,  <span class="number">132</span>,  <span class="number">130</span>,  <span class="number">127</span>,  <span class="number">124</span>,  <span class="number">122</span>,  <span class="number">119</span>, </span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>==注:== 温度应该是连续递增的。</p>
-<hr>
-<h2 id="温度查找"><a href="#温度查找" class="headerlink" title="温度查找"></a>温度查找</h2><p>学过C语言的同学，应该都知道二分法查找，每次将当前的值与目标范围的中间值进行比较，从而不断缩小查找范围，时间复杂度为*O($\log_{2}{n}$)*。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">FindAdcTemp</span><span class="params">(<span class="keyword">u16_t</span> wAdcVal, <span class="keyword">u16_t</span> wTempData)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">u8_t</span> nBegin = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">u8_t</span> nEnd= <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">u8_t</span> nMiddle = <span class="number">0</span>;</span><br><span class="line">  <span class="comment">/* 首先判断是否超出表格的最大最小值 */</span></span><br><span class="line">  nEnd = RT_NUM <span class="number">-1</span>;</span><br><span class="line">  <span class="keyword">if</span> (wAdcVal &lt;= *(wRTtable + nEnd))</span><br><span class="line">  &#123;</span><br><span class="line">    wTempData = RT_NUM + MINTEMP;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (wAdcVal &gt;= *(wRTtable + nBegin))</span><br><span class="line">  &#123;</span><br><span class="line">    wTempData = MINTEMP;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="comment">/* 当温度在表格范围内 */</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">while</span> ((nBegin &lt; nEnd) &amp;&amp; (wAdcVal != *(wRTtable + nMiddle)))</span><br><span class="line">    &#123;</span><br><span class="line">      nMiddle = nBegin + (nEnd - nBegin)&gt;&gt;<span class="number">1</span>;</span><br><span class="line">      <span class="keyword">if</span> (wAdcVal &gt; *(wRTtable + nMiddle))</span><br><span class="line">      &#123;</span><br><span class="line">        nEnd = nMiddle - <span class="number">1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">      &#123;</span><br><span class="line">        nBegin = nMiddle + <span class="number">1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    wTempData = MINTEMP + (nBegin <span class="number">-1</span>);</span><br><span class="line">    <span class="comment">/* 接下来要计算当前的值更偏向于前一个还是后一个数 */</span></span><br><span class="line">    <span class="keyword">if</span> (wAdcVal &lt; *(wRTtable + nBegin <span class="number">-1</span>))</span><br><span class="line">    &#123;</span><br><span class="line">      wDiffAdcVal = (*(wRTtable + nBegin <span class="number">-1</span>) - wAdcVal)*<span class="number">10</span>;</span><br><span class="line">      wDiffAdcVal /= *(wRTtable + nBegin <span class="number">-1</span>) - *(wRTtable + nBegin);</span><br><span class="line">      <span class="keyword">if</span> (wDiffAdcVal &gt;= <span class="number">5</span>) <span class="comment">// 四舍五入</span></span><br><span class="line">      &#123;</span><br><span class="line">        wTempData = MINTEMP + nBegin;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们只要调用<em>FindAdcTemp</em>这个函数，就可以根据当前的AD值，计算得到最接近的温度值。</p>
-
-      
-
-      
-        <div class="page-reward">
-          <a href="javascript:;" class="page-reward-btn tooltip-top">
-            <div class="tooltip tooltip-east">
-            <span class="tooltip-item">
-              赏
-            </span>
-            <span class="tooltip-content">
-              <span class="tooltip-text">
-                <span class="tooltip-inner">
-                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你<i class="icon icon-quo-right"></i></p>
-                  <div class="reward-box">
-                    
-                    
-                  </div>
-                </span>
-              </span>
-            </span>
-          </div>
-          </a>
-        </div>
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
+        <div class="article-info info-on-right">
+          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">单片机</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">数据结构</a>
         		</li>
       		
 		</ul>
 	</div>
 
-      
+          
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/单片机//" class="article-tag-list-link color4">单片机</a>
+        			<a href="/categories/数据结构//" class="article-tag-list-link color5">数据结构</a>
         		</li>
       		
 		</ul>
 	</div>
 
 
-      
-
-      
-        
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
         </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://example.com/2021/12/31/%E5%8D%95%E7%89%87%E6%9C%BAADC%E6%B6%88%E6%8A%96%E5%A4%84%E7%90%86/" alt="微信分享二维码">
-    </div>
-</div>
-
-<div class="mask js-mask"></div>
-      
-      <div class="clearfix"></div>
-    </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
 </article>
-
-  
-<nav id="article-nav">
-  
-    <a href="/2022/01/04/PID%E6%8E%A7%E5%88%B6%E7%AE%97%E6%B3%95/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          PID控制算法
-        
-      </div>
-    </a>
   
   
-    <a href="/2021/12/31/%E5%8D%95%E7%89%87%E6%9C%BA%E6%B8%A9%E5%BA%A6%E8%AE%A1%E7%AE%97%E6%8F%92%E5%80%BC%E6%B3%95/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">单片机温度计算插值法</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
-
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-  
-  <div class="duoshuo">
-	<!-- 多说评论框 start -->
-	<div class="ds-thread" data-thread-key="单片机ADC消抖处理" data-title="单片机ADC消抖处理" data-url="http://example.com/2021/12/31/%E5%8D%95%E7%89%87%E6%9C%BAADC%E6%B6%88%E6%8A%96%E5%A4%84%E7%90%86/"></div>
-	<!-- 多说评论框 end -->
-	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-	<script type="text/javascript">
-	var duoshuoQuery = {short_name:"true"};
-	(function() {
-		var ds = document.createElement('script');
-		ds.type = 'text/javascript';ds.async = true;
-		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-		ds.charset = 'UTF-8';
-		(document.getElementsByTagName('head')[0] 
-		 || document.getElementsByTagName('body')[0]).appendChild(ds);
-	})();
-	</script>
-	<!-- 多说公共JS代码 end -->
-</div>
-
-  
-  
-  
-  <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
-<script>
-  var cloudTieConfig = {
-    url: "http://example.com/2021/12/31/%E5%8D%95%E7%89%87%E6%9C%BAADC%E6%B6%88%E6%8A%96%E5%A4%84%E7%90%86/", 
-    sourceId: "单片机ADC消抖处理",
-    productKey: "ture",
-    target: "cloud-tie-wrapper"
-  };
-</script>
-<script src="//img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
+    </div></section>
   
 
-  
-  <div id="SOHUCS" sid="单片机ADC消抖处理" ></div> 
-<script charset="utf-8" type="text/javascript" src="//changyan.sohu.com/upload/changyan.js" ></script>
-<script type="text/javascript">
-    window.changyan.api.config({
-        appid: "true",
-        conf: "true"
-    });
-</script>
-</script>
-  
-
-  
-    <section id="comments">
-      <div id="disqus_thread"></div>
-        <script type="text/javascript">
-        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-        var disqus_shortname = 'true'; // required: replace example with your forum shortname
-
-        /* * * DON'T EDIT BELOW THIS LINE * * */
-        (function() {
-          var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-          dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-          (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-        })();
-      </script>
-      <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-    </section>
-  
-
-  
+    
 
 
           </div>
@@ -434,9 +233,9 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: true,
+		isPost: false,
 		isArchive: false,
-		isTag: false,
+		isTag: true,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,
